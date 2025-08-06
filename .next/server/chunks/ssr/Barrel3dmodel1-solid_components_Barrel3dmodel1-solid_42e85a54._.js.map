@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 5, "column": 0}, "map": {"version":3,"sources":["file:///Users/nitishkumar/Downloads/gltf2code/Barrel3dmodel1-solid/components/Barrel3dmodel1-solid/materials/Material_001.tsx"],"sourcesContent":["import * as THREE from 'three';\n\nexport default function Material_001() {\n  return new THREE.MeshStandardMaterial({\n    color: 0x888888,\n    metalness: 0.1,\n    roughness: 0.8\n  });\n}"],"names":[],"mappings":";;;AAAA;;AAEe,SAAS;IACtB,OAAO,IAAI,+IAAA,CAAA,uBAA0B,CAAC;QACpC,OAAO;QACP,WAAW;QACX,WAAW;IACb;AACF","debugId":null}},
+    {"offset": {"line": 21, "column": 0}, "map": {"version":3,"sources":["file:///Users/nitishkumar/Downloads/gltf2code/Barrel3dmodel1-solid/components/Barrel3dmodel1-solid/index.tsx"],"sourcesContent":["import React, { useRef, useMemo } from 'react';\nimport type { GroupProps } from '@react-three/fiber';\n\nimport Temp from './meshes/temp';\nimport Material_001 from './materials/Material_001';\n\nexport default function Barrel3dmodel1(props: GroupProps) {\n  const ref = useRef();\n  \n  return (\n    <group ref={ref} {...props}>\n      <Temp material={Material_001()} />\n    </group>\n  );\n}"],"names":[],"mappings":";;;;AAAA;AAGA;AACA;;;;;AAEe,SAAS,eAAe,KAAiB;IACtD,MAAM,MAAM,CAAA,GAAA,qMAAA,CAAA,SAAM,AAAD;IAEjB,qBACE,8OAAC;QAAM,KAAK;QAAM,GAAG,KAAK;kBACxB,cAAA,8OAAC,mLAAA,CAAA,UAAI;YAAC,UAAU,CAAA,GAAA,8LAAA,CAAA,UAAY,AAAD;;;;;;;;;;;AAGjC","debugId":null}}]
+}

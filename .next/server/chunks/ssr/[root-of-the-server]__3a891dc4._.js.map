@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 13, "column": 0}, "map": {"version":3,"sources":["file:///Users/nitishkumar/Downloads/gltf2code/app/page.tsx"],"sourcesContent":["\"use client\";\nimport Image from \"next/image\";\nimport GLBConverter from \"./glb-convertor/page\";\nimport Model from \"@/Hotairballoonbyget3dmodels\";\nimport { Canvas } from \"@react-three/fiber\";\nexport default function Home() {\n  return (\n        <div className=\"w-screen h-screen\">\n      <Canvas>\n        <Model/>\n      </Canvas>\n    </div>\n\n  );\n}\n"],"names":[],"mappings":";;;;;;;;;AAIA;AAJA;;;;AAKe,SAAS;IACtB,qBACM,8OAAC;QAAI,WAAU;kBACjB,cAAA,8OAAC,mMAAA,CAAA,SAAM;sBACL,cAAA,8OAAC;;;;;;;;;;;;;;;AAKT","debugId":null}}]
+}
