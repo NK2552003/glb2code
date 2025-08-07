@@ -21,7 +21,7 @@ export interface ProjectStructure {
   indexContent: string;
   examplePageContent: string;
   meshes: MeshData[];
-  geometries: GeometryData[];  // New field for geometry blocks
+  geometries: GeometryData[]; 
   materials: MaterialData[];
   totalVertices: number;
   totalTriangles: number;
