@@ -1,10 +1,9 @@
 "use client";
-
 import React, { useState, useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, Environment, Html } from '@react-three/drei';
-import { Download, Upload, Eye, Code, Loader2, AlertCircle, File, FileText, Folder, Layout, Languages, Package, Terminal, Copy } from 'lucide-react';
+import { Download, Upload, Eye, Code, Loader2, AlertCircle, File, FileText, Folder, Layout, Languages, Package, Terminal, Copy, ChevronRight, ChevronDown, X } from 'lucide-react';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 import JSZip from 'jszip';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
@@ -30,7 +29,6 @@ const LANGUAGES = [
   { id: 'dart', name: 'Dart', extension: 'dart', geometryExtension: 'dart', group: 'Mobile' },
   { id: 'r', name: 'R', extension: 'R', geometryExtension: 'R', group: 'Data Science' }
 ] as const;
-
 type LanguageId = typeof LANGUAGES[number]['id'];
 
 // Language-specific setup instructions and dependencies
@@ -61,7 +59,6 @@ const LANGUAGE_SETUP = {
     importExample: `import ${'{componentName}'} from '@/components/${'{componentName}'}';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
-
 export default function ModelPage() {
   return (
     <div className="w-full h-screen">
@@ -79,7 +76,6 @@ export default function ModelPage() {
 import { MeshName } from '@/components/${'{componentName}'}/meshes/MeshName';
 import { MeshNameGeometry } from '@/components/${'{componentName}'}/geometries/MeshNameGeometry';
 import MaterialName from '@/components/${'{componentName}'}/materials/MaterialName';
-
 function CustomModel() {
   return (
     <group>
@@ -109,7 +105,6 @@ function CustomModel() {
     importExample: `import ${'{componentName}'} from './components/${'{componentName}'}';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
-
 export default function ModelPage() {
   return (
     <div className="w-full h-screen">
@@ -127,7 +122,6 @@ export default function ModelPage() {
 import { MeshName } from './components/${'{componentName}'}/meshes/MeshName';
 import { MeshNameGeometry } from './components/${'{componentName}'}/geometries/MeshNameGeometry';
 import MaterialName from './components/${'{componentName}'}/materials/MaterialName';
-
 function CustomModel() {
   return (
     <group>
@@ -157,16 +151,13 @@ function CustomModel() {
 import pyglet
 import moderngl
 from pyrr import Matrix44
-
 class ModelApp:
     def __init__(self):
         self.window = pyglet.window.Window(800, 600, caption='${'{componentName}'} Viewer')
         self.ctx = moderngl.create_context()
         self.scene = ${'{componentName}'}(self.ctx)
-        
     def run(self):
         pyglet.app.run()
-
 if __name__ == '__main__':
     app = ModelApp()
     app.run()`,
@@ -174,7 +165,6 @@ if __name__ == '__main__':
 from meshes.MeshName import MeshName
 from geometries.MeshNameGeometry import MeshNameGeometry
 from materials.MaterialName import MaterialName
-
 class CustomModel:
     def __init__(self, ctx):
         self.geometry = MeshNameGeometry()
@@ -195,7 +185,6 @@ class CustomModel:
     <artifactId>lwjgl</artifactId>
     <version>3.3.3</version>
 </dependency>
-
 // Gradle
 implementation 'org.lwjgl:lwjgl:3.3.3'
 implementation 'org.lwjgl:lwjgl-opengl:3.3.3'`,
@@ -207,7 +196,6 @@ implementation 'org.lwjgl:lwjgl-opengl:3.3.3'`,
       'Run the example application'
     ],
     importExample: `import ${'{componentName}'};
-
 public class ModelApp {
     public static void main(String[] args) {
         // Initialize LWJGL and OpenGL context
@@ -220,11 +208,9 @@ public class ModelApp {
 import meshes.MeshName;
 import geometries.MeshNameGeometry;
 import materials.MaterialName;
-
 public class CustomModel {
     private MeshNameGeometry geometry;
     private MaterialName material;
-    
     public CustomModel() {
         this.geometry = new MeshNameGeometry();
         this.material = new MaterialName();
@@ -250,7 +236,6 @@ public class CustomModel {
     importExample: `using ${'{componentName}'};
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Desktop;
-
 class Program
 {
     static void Main()
@@ -263,12 +248,10 @@ class Program
 using Meshes;
 using Geometries;
 using Materials;
-
 public class CustomModel
 {
     private MeshNameGeometry geometry;
     private MaterialName material;
-    
     public CustomModel()
     {
         geometry = new MeshNameGeometry();
@@ -286,7 +269,6 @@ public class CustomModel
     devDependencies: [],
     installCommand: `// vcpkg
 vcpkg install glew glfw3 glm
-
 // Or with CMake
 find_package(glfw3 REQUIRED)
 find_package(GLEW REQUIRED)
@@ -301,34 +283,28 @@ find_package(glm REQUIRED)`,
     importExample: `#include "${'{componentName}'}.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 int main() {
     // Initialize GLFW and OpenGL
     glfwInit();
     GLFWwindow* window = glfwCreateWindow(800, 600, "${'{componentName}'} Viewer", NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
-    
     ${'{componentName}'} model;
-    
     while (!glfwWindowShouldClose(window)) {
         model.render();
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-    
     return 0;
 }`,
     customizationExample: `// Access individual parts
 #include "meshes/MeshName.h"
 #include "geometries/MeshNameGeometry.h"
 #include "materials/MaterialName.h"
-
 class CustomModel {
 private:
     MeshNameGeometry geometry;
     MaterialName material;
-    
 public:
     CustomModel() : geometry(), material() {}
     void render() { /* custom rendering */ }
@@ -354,24 +330,19 @@ go get github.com/go-gl/mathgl/mgl32`,
       'Run the example application'
     ],
     importExample: `package main
-
 import (
     "./${'{componentName}'}"
     "github.com/go-gl/gl/v4.1-core/gl"
     "github.com/go-gl/glfw/v3.3/glfw"
 )
-
 func main() {
     // Initialize GLFW and OpenGL
     glfw.Init()
     defer glfw.Terminate()
-    
     window, _ := glfw.CreateWindow(800, 600, "${'{componentName}'} Viewer", nil, nil)
     window.MakeContextCurrent()
     gl.Init()
-    
     model := ${'{componentName}'}.New${'{componentName}'}()
-    
     for !window.ShouldClose() {
         model.Render()
         window.SwapBuffers()
@@ -384,12 +355,10 @@ import (
     "./geometries"
     "./materials"
 )
-
 type CustomModel struct {
     geometry *geometries.MeshNameGeometry
     material *materials.MaterialName
 }
-
 func NewCustomModel() *CustomModel {
     return &CustomModel{
         geometry: geometries.NewMeshNameGeometry(),
@@ -422,14 +391,11 @@ glam = "0.24"`,
     importExample: `use ${'{componentName}'}::${'{componentName}'};
 use wgpu::Device;
 use winit::event_loop::EventLoop;
-
 fn main() {
     let event_loop = EventLoop::new();
     // Initialize wgpu and create device
     let device = /* initialize device */;
-    
     let model = ${'{componentName}'}::new(&device);
-    
     event_loop.run(move |event, _, control_flow| {
         // Render model
         model.render(&mut render_pass);
@@ -439,12 +405,10 @@ fn main() {
 use meshes::MeshName;
 use geometries::MeshNameGeometry;
 use materials::MaterialName;
-
 struct CustomModel {
     geometry: MeshNameGeometry,
     material: MaterialName,
 }
-
 impl CustomModel {
     fn new(device: &Device) -> Self {
         Self {
@@ -476,14 +440,11 @@ dependencies: [
     importExample: `import ${'{componentName}'}
 import Metal
 import MetalKit
-
 class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         guard let device = MTLCreateSystemDefaultDevice() else { return }
         let model = ${'{componentName}'}(device: device)
-        
         // Setup Metal rendering
     }
 }`,
@@ -491,11 +452,9 @@ class ViewController: UIViewController {
 import Meshes
 import Geometries
 import Materials
-
 class CustomModel {
     private let geometry: MeshNameGeometry
     private let material: MaterialName
-    
     init(device: MTLDevice) {
         geometry = MeshNameGeometry(device: device)
         material = MaterialName(device: device)
@@ -523,11 +482,9 @@ dependencies {
     ],
     importExample: `import ${'{componentName}'}
 import org.lwjgl.opengl.GL
-
 fun main() {
     // Initialize LWJGL and OpenGL
     val model = ${'{componentName}'}()
-    
     // Render loop
     model.render()
 }`,
@@ -535,11 +492,9 @@ fun main() {
 import meshes.MeshName
 import geometries.MeshNameGeometry
 import materials.MaterialName
-
 class CustomModel {
     private val geometry = MeshNameGeometry()
     private val material = MaterialName()
-    
     fun render() {
         // Custom rendering logic
     }
@@ -563,25 +518,21 @@ class CustomModel {
     importExample: `require './${'{componentName}'}'
 require 'opengl'
 require 'glfw'
-
 class ModelApp
   def initialize
     @model = ${'{componentName}'}::${'{componentName}'}.new
   end
-  
   def run
     # Initialize OpenGL and render
     @model.render
   end
 end
-
 app = ModelApp.new
 app.run`,
     customizationExample: `# Access individual parts
 require './meshes/mesh_name'
 require './geometries/mesh_name_geometry'
 require './materials/material_name'
-
 class CustomModel
   def initialize
     @geometry = MeshNameGeometry.new
@@ -607,19 +558,15 @@ end`
     importExample: `<?php
 require_once './${'{componentName}'}.php';
 use OpenGL\\GL;
-
 class ModelApp {
     private $model;
-    
     public function __construct() {
         $this->model = new ${'{componentName}'}();
     }
-    
     public function run() {
         $this->model->render();
     }
 }
-
 $app = new ModelApp();
 $app->run();`,
     customizationExample: `<?php
@@ -627,11 +574,9 @@ $app->run();`,
 require_once './meshes/MeshName.php';
 require_once './geometries/MeshNameGeometry.php';
 require_once './materials/MaterialName.php';
-
 class CustomModel {
     private $geometry;
     private $material;
-    
     public function __construct() {
         $this->geometry = new MeshNameGeometry();
         $this->material = new MaterialName();
@@ -659,11 +604,9 @@ libraryDependencies ++= Seq(
     ],
     importExample: `import ${'{componentName}'}._
 import org.lwjgl.opengl.GL
-
 object ModelApp extends App {
   // Initialize LWJGL and OpenGL
   val model = new ${'{componentName}'}()
-  
   // Render loop
   model.render()
 }`,
@@ -671,11 +614,9 @@ object ModelApp extends App {
 import meshes.MeshName
 import geometries.MeshNameGeometry
 import materials.MaterialName
-
 class CustomModel {
   private val geometry = new MeshNameGeometry()
   private val material = new MaterialName()
-  
   def render(): Unit = {
     // Custom rendering logic
   }
@@ -704,7 +645,6 @@ dependencies:
     ],
     importExample: `import 'package:flutter/material.dart';
 import './${'{componentName}'}.dart';
-
 class ModelPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -717,11 +657,9 @@ class ModelPage extends StatelessWidget {
 import './meshes/mesh_name.dart';
 import './geometries/mesh_name_geometry.dart';
 import './materials/material_name.dart';
-
 class CustomModel {
   final MeshNameGeometry geometry;
   final MaterialName material;
-  
   CustomModel() : 
     geometry = MeshNameGeometry(),
     material = MaterialName();
@@ -744,7 +682,6 @@ class CustomModel {
     ],
     importExample: `library(rgl)
 source("./${'{componentName}'}.R")
-
 # Create and display the model
 model <- ${'{componentName}'}$new()
 model$render()`,
@@ -752,7 +689,6 @@ model$render()`,
 source("./meshes/MeshName.R")
 source("./geometries/MeshNameGeometry.R")
 source("./materials/MaterialName.R")
-
 CustomModel <- setRefClass("CustomModel",
   fields = list(
     geometry = "MeshNameGeometry",
@@ -780,7 +716,6 @@ const copyToClipboard = (text: string) => {
 function CodeEditor({ code, languageId }: { code: string; languageId: LanguageId }) {
   const language = LANGUAGES.find(lang => lang.id === languageId);
   const lines = code.split('\n');
-
   const getSyntaxClass = (line: string): string => {
     if (line.trim().startsWith('//') || line.trim().startsWith('#')) {
       return 'text-[#6A9955]'; // Comments
@@ -811,7 +746,7 @@ function CodeEditor({ code, languageId }: { code: string; languageId: LanguageId
 
   return (
     <div className="bg-[#1E1E1E] rounded-lg overflow-hidden font-mono text-sm h-full flex flex-col">
-      <div className="bg-[#3C3C3C] px-4 py-2 flex items-center justify-between border-b border-[#333333]">
+      <div className="bg-[#252526] px-4 py-2 flex items-center justify-between border-b border-[#333333]">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
           <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
@@ -819,7 +754,7 @@ function CodeEditor({ code, languageId }: { code: string; languageId: LanguageId
         </div>
         <div className="text-[#CCCCCC] text-xs flex items-center gap-2">
           <span>{language?.name}</span>
-          <span className="text-[#858585]">•</span>
+          <span className="text-[#858585]">●</span>
           <span className="text-[#858585]">{lines.length} lines</span>
           <button
             onClick={() => copyToClipboard(code)}
@@ -859,7 +794,6 @@ function LanguageSelector({
   onChange: (language: LanguageId) => void 
 }) {
   const groups = Array.from(new Set(LANGUAGES.map(lang => lang.group)));
-
   return (
     <div className="relative">
       <div className="flex items-center gap-2">
@@ -867,7 +801,7 @@ function LanguageSelector({
         <select
           value={selectedLanguage}
           onChange={(e) => onChange(e.target.value as LanguageId)}
-          className="bg-slate-700 text-white px-3 py-1.5 rounded border border-slate-600 focus:border-purple-500 outline-none text-sm appearance-none pr-8 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%239CA3AF%22><path d=%22M7 10l5 5 5-5z%22/></svg>')] bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem] cursor-pointer"
+          className="bg-[#252526] text-white px-3 py-1.5 rounded border border-[#3c3c3c] focus:border-purple-500 outline-none text-sm appearance-none pr-8 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%239CA3AF%22><path d=%22M7 10l5 5 5-5z%22/></svg>')] bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem] cursor-pointer"
         >
           {groups.map(group => (
             <optgroup key={group} label={group}>
@@ -884,271 +818,188 @@ function LanguageSelector({
   );
 }
 
-// How to Use section component
-function HowToUseSection({ 
-  selectedLanguage, 
-  componentName 
+// File tree component for VS Code sidebar
+function FileTree({ 
+  projectStructure, 
+  selectedLanguage,
+  onSelectFile,
+  expandedFolders,
+  toggleFolder,
+  activeFile
 }: { 
-  selectedLanguage: LanguageId; 
-  componentName: string 
+  projectStructure: ProjectStructure | null;
+  selectedLanguage: LanguageId;
+  onSelectFile: (path: string, content: string) => void;
+  expandedFolders: Record<string, boolean>;
+  toggleFolder: (folder: string) => void;
+  activeFile: string | null;
 }) {
-  const setup = LANGUAGE_SETUP[selectedLanguage];
+  if (!projectStructure) return null;
+  
   const lang = LANGUAGES.find(l => l.id === selectedLanguage);
-
-  const replaceComponentName = (text: string) => {
-    return text.replace(/\{componentName\}/g, componentName);
+  if (!lang) return null;
+  
+  const getIcon = (fileName: string) => {
+    if (fileName.includes('Geometry')) return 'text-cyan-400';
+    if (fileName.includes('index')) return 'text-green-400';
+    if (fileName.includes('meshes')) return 'text-cyan-400';
+    if (fileName.includes('geometries')) return 'text-cyan-400';
+    if (fileName.includes('materials')) return 'text-orange-400';
+    if (fileName.includes('page')) return 'text-purple-400';
+    return 'text-white';
   };
 
   return (
-    <div className="p-6 border-t border-slate-700">
-      <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-        <Terminal className="w-5 h-5 mr-2 text-purple-400" />
-        How to Use ({setup.packageManager})
-      </h4>
-      
-      <div className="space-y-6">
-        {/* Dependencies Section */}
-        <div>
-          <h5 className="text-md font-semibold text-white mb-2 flex items-center">
-            <Package className="w-4 h-4 mr-2 text-green-400" />
-            Dependencies
-          </h5>
-          <div className="bg-slate-900 rounded-lg p-4">
-            <div className="mb-3">
-              <p className="text-slate-400 text-sm mb-2">Install required dependencies:</p>
-              <div className="bg-slate-800 rounded p-3 relative">
-                <code className="text-green-400 text-sm">{setup.installCommand}</code>
-                <button
-                  onClick={() => copyToClipboard(setup.installCommand)}
-                  className="absolute top-2 right-2 p-1 hover:bg-slate-700 rounded"
-                  title="Copy command"
-                >
-                  <Copy className="w-3 h-3 text-slate-400" />
-                </button>
-              </div>
-            </div>
-            
-            {setup.devInstallCommand && (
-              <div className="mb-3">
-                <p className="text-slate-400 text-sm mb-2">Install development dependencies:</p>
-                <div className="bg-slate-800 rounded p-3 relative">
-                  <code className="text-blue-400 text-sm">{setup.devInstallCommand}</code>
-                  <button
-                    onClick={() => copyToClipboard(setup.devInstallCommand)}
-                    className="absolute top-2 right-2 p-1 hover:bg-slate-700 rounded"
-                    title="Copy command"
-                  >
-                    <Copy className="w-3 h-3 text-slate-400" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <div className="text-xs text-slate-500 mt-3">
-              <p className="font-medium mb-1">Required packages:</p>
-              <ul className="list-disc list-inside space-y-1">
-                {setup.dependencies.map((dep, i) => (
-                  <li key={i}>{dep}</li>
-                ))}
-              </ul>
-              {setup.devDependencies.length > 0 && (
-                <>
-                  <p className="font-medium mb-1 mt-2">Development packages:</p>
-                  <ul className="list-disc list-inside space-y-1">
-                    {setup.devDependencies.map((dep, i) => (
-                      <li key={i}>{dep}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Setup Steps */}
-        <div>
-          <h5 className="text-md font-semibold text-white mb-2">Setup Steps</h5>
-          <div className="bg-slate-900 rounded-lg p-4">
-            <ol className="list-decimal list-inside space-y-2 text-slate-400 text-sm">
-              {setup.setupSteps.map((step, i) => (
-                <li key={i}>{step}</li>
-              ))}
-            </ol>
-          </div>
-        </div>
-
-        {/* Download Instructions */}
-        <div>
-          <h5 className="text-md font-semibold text-white mb-2">Download & Extract</h5>
-          <div className="bg-slate-900 rounded-lg p-4">
-            <div className="space-y-3">
-              <div>
-                <p className="text-slate-400 text-sm mb-2">1. Download the complete project:</p>
-                <div className="bg-slate-800 rounded p-3">
-                  <code className="text-blue-400 text-sm">Click "Download Full Project" button above</code>
-                </div>
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm mb-2">2. Extract to your project directory:</p>
-                <div className="bg-slate-800 rounded p-3">
-                  <code className="text-yellow-400 text-sm">
-                    {componentName}-{selectedLanguage}-with-example.zip → your-project/
-                  </code>
-                </div>
-              </div>
-              <div>
-                <p className="text-slate-400 text-sm mb-2">3. File structure after extraction:</p>
-                <div className="bg-slate-800 rounded p-3 text-xs">
-                  <div className="text-slate-300 font-mono">
-                    <div>📁 components/</div>
-                    <div className="ml-4">📁 {componentName}/</div>
-                    <div className="ml-8">📄 index.{lang?.extension}</div>
-                    <div className="ml-8">📁 geometries/</div>
-                    <div className="ml-8">📁 meshes/</div>
-                    <div className="ml-8">📁 materials/</div>
-                    <div>📁 app/</div>
-                    <div className="ml-4">📁 {componentName.toLowerCase()}-page/</div>
-                    <div className="ml-8">📄 page.{lang?.extension}</div>
-                  </div>
-                </div>
-              
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Usage Example */}
-        <div>
-          <h5 className="text-md font-semibold text-white mb-2">Basic Usage</h5>
-          <div className="bg-slate-900 rounded-lg overflow-hidden">
-            <div className="px-4 py-2 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-              <span className="text-purple-400 font-mono text-sm">
-                Basic implementation example
-              </span>
-              <button
-                onClick={() => copyToClipboard(replaceComponentName(setup.importExample))}
-                className="p-1 hover:bg-slate-700 rounded"
-                title="Copy example"
-              >
-                <Copy className="w-3 h-3 text-slate-400" />
-              </button>
-            </div>
-            <div className="p-4">
-              <pre className="text-sm overflow-x-auto">
-                <code className="text-slate-300">
-                  {replaceComponentName(setup.importExample)}
-                </code>
-              </pre>
-            </div>
-          </div>
-        </div>
-
-        {/* Customization Example */}
-        <div>
-          <h5 className="text-md font-semibold text-white mb-2">Advanced Customization</h5>
-          <div className="bg-slate-900 rounded-lg overflow-hidden">
-            <div className="px-4 py-2 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
-              <span className="text-orange-400 font-mono text-sm">
-                Access individual components
-              </span>
-              <button
-                onClick={() => copyToClipboard(replaceComponentName(setup.customizationExample))}
-                className="p-1 hover:bg-slate-700 rounded"
-                title="Copy example"
-              >
-                <Copy className="w-3 h-3 text-slate-400" />
-              </button>
-            </div>
-            <div className="p-4">
-              <pre className="text-sm overflow-x-auto">
-                <code className="text-slate-300">
-                  {replaceComponentName(setup.customizationExample)}
-                </code>
-              </pre>
-            </div>
-          </div>
-        </div>
-
-        {/* Language-specific Notes */}
-        <div>
-          <h5 className="text-md font-semibold text-white mb-2">Important Notes</h5>
-          <div className="bg-slate-900 rounded-lg p-4">
-            <div className="text-xs text-slate-400 space-y-2">
-              {selectedLanguage === 'typescript' || selectedLanguage === 'javascript' ? (
-                <>
-                  <p>• This component is designed for React Three Fiber applications</p>
-                  <p>• Make sure you have a Canvas component wrapping your 3D content</p>
-                  <p>• Geometry files are separated for better maintainability and reusability</p>
-                  <p>• Each mesh component imports its geometry from the geometries folder</p>
-                </>
-              ) : selectedLanguage === 'python' ? (
-                <>
-                  <p>• This implementation uses ModernGL for high-performance OpenGL rendering</p>
-                  <p>• Make sure you have OpenGL drivers installed on your system</p>
-                  <p>• Geometry data is optimized for NumPy arrays</p>
-                  <p>• Each component is a separate class for modularity</p>
-                </>
-              ) : selectedLanguage === 'java' ? (
-                <>
-                  <p>• This implementation uses LWJGL for OpenGL bindings</p>
-                  <p>• Make sure to include native libraries for your platform</p>
-                  <p>• Geometry data is stored in efficient buffer objects</p>
-                  <p>• Memory management is handled automatically</p>
-                </>
-              ) : selectedLanguage === 'csharp' ? (
-                <>
-                  <p>• This implementation uses OpenTK for OpenGL bindings</p>
-                  <p>• Compatible with .NET Core and .NET Framework</p>
-                  <p>• Implements IDisposable for proper resource cleanup</p>
-                  <p>• Geometry data is optimized for GPU buffers</p>
-                </>
-              ) : selectedLanguage === 'cpp' ? (
-                <>
-                  <p>• This implementation uses modern OpenGL with GLEW and GLFW</p>
-                  <p>• Requires C++11 or later</p>
-                  <p>• Uses RAII for automatic resource management</p>
-                  <p>• Geometry data is stored in efficient STL containers</p>
-                </>
-              ) : selectedLanguage === 'go' ? (
-                <>
-                  <p>• This implementation uses go-gl bindings for OpenGL</p>
-                  <p>• Requires CGO to be enabled</p>
-                  <p>• Memory management is handled by Go's garbage collector</p>
-                  <p>• Geometry data is stored in slices for efficiency</p>
-                </>
-              ) : selectedLanguage === 'rust' ? (
-                <>
-                  <p>• This implementation uses wgpu for cross-platform graphics</p>
-                  <p>• Memory safety is guaranteed by Rust's ownership system</p>
-                  <p>• Geometry data is stored in efficient Vec containers</p>
-                  <p>• Compatible with WebAssembly for web deployment</p>
-                </>
-              ) : selectedLanguage === 'swift' ? (
-                <>
-                  <p>• This implementation uses Metal for high-performance graphics</p>
-                  <p>• Compatible with iOS, macOS, and tvOS</p>
-                  <p>• Automatic reference counting handles memory management</p>
-                  <p>• Geometry data is optimized for Metal buffers</p>
-                </>
-              ) : (
-                <>
-                  <p>• Geometry files are separated for better maintainability</p>
-                  <p>• Each component is modular and can be used independently</p>
-                  <p>• Memory optimization is applied for large models</p>
-                  <p>• Follow the platform-specific best practices for your language</p>
-                </>
-              )}
-              <p className="pt-2 border-t border-slate-700 mt-3">
-                <strong>Performance Tips:</strong> For extremely large models (&gt;100MB), consider:
-                <br />• Loading geometry data asynchronously
-                <br />• Implementing level-of-detail (LOD) systems
-                <br />• Using instancing for repeated geometry
-                <br />• Applying mesh simplification for distant objects
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="text-sm">
+      <div 
+        className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+        onClick={() => toggleFolder('components')}
+      >
+        {expandedFolders.components ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+        <Folder className="w-4 h-4 mr-2 text-yellow-400" />
+        <span className="text-[#C5C5C5]">components</span>
       </div>
+      
+      {expandedFolders.components && (
+        <div className="pl-4">
+          <div 
+            className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+            onClick={() => toggleFolder('componentName')}
+          >
+            {expandedFolders.componentName ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+            <Folder className="w-4 h-4 mr-2 text-blue-400" />
+            <span className="text-[#C5C5C5]">Model</span>
+          </div>
+          
+          {expandedFolders.componentName && (
+            <div className="pl-4">
+              <div 
+                className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
+                  activeFile === 'index' ? 'bg-[#2A2D2E]' : ''
+                }`}
+                onClick={() => onSelectFile('index', projectStructure.indexContent)}
+              >
+                <FileText className={`w-4 h-4 mr-2 ${getIcon('index')}`} />
+                <span className="text-[#C5C5C5]">index.{lang.extension}</span>
+              </div>
+              
+              <div 
+                className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+                onClick={() => toggleFolder('geometries')}
+              >
+                {expandedFolders.geometries ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+                <Folder className="w-4 h-4 mr-2 text-cyan-400" />
+                <span className="text-[#C5C5C5]">geometries</span>
+              </div>
+              
+              {expandedFolders.geometries && (
+                <div className="pl-4">
+                  {projectStructure.geometries?.map((geometry, i) => (
+                    <div 
+                      key={i}
+                      className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
+                        activeFile === `geometry-${i}` ? 'bg-[#2A2D2E]' : ''
+                      }`}
+                      onClick={() => onSelectFile(`geometry-${i}`, geometry.content)}
+                    >
+                      <File className={`w-4 h-4 mr-2 ${getIcon(geometry.name)}`} />
+                      <span className="text-[#C5C5C5]">{geometry.name}Geometry.{lang.geometryExtension}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div 
+                className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+                onClick={() => toggleFolder('meshes')}
+              >
+                {expandedFolders.meshes ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+                <Folder className="w-4 h-4 mr-2 text-cyan-400" />
+                <span className="text-[#C5C5C5]">meshes</span>
+              </div>
+              
+              {expandedFolders.meshes && (
+                <div className="pl-4">
+                  {projectStructure.meshes.map((mesh, i) => (
+                    <div 
+                      key={i}
+                      className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
+                        activeFile === `mesh-${i}` ? 'bg-[#2A2D2E]' : ''
+                      }`}
+                      onClick={() => onSelectFile(`mesh-${i}`, mesh.content)}
+                    >
+                      <File className={`w-4 h-4 mr-2 ${getIcon(mesh.name)}`} />
+                      <span className="text-[#C5C5C5]">{mesh.name}.{lang.extension}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div 
+                className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+                onClick={() => toggleFolder('materials')}
+              >
+                {expandedFolders.materials ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+                <Folder className="w-4 h-4 mr-2 text-orange-400" />
+                <span className="text-[#C5C5C5]">materials</span>
+              </div>
+              
+              {expandedFolders.materials && (
+                <div className="pl-4">
+                  {projectStructure.materials.map((material, i) => (
+                    <div 
+                      key={i}
+                      className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
+                        activeFile === `material-${i}` ? 'bg-[#2A2D2E]' : ''
+                      }`}
+                      onClick={() => onSelectFile(`material-${i}`, material.content)}
+                    >
+                      <File className={`w-4 h-4 mr-2 ${getIcon(material.name)}`} />
+                      <span className="text-[#C5C5C5]">{material.name}.{lang.extension}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      
+      <div 
+        className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+        onClick={() => toggleFolder('app')}
+      >
+        {expandedFolders.app ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+        <Folder className="w-4 h-4 mr-2 text-purple-400" />
+        <span className="text-[#C5C5C5]">app</span>
+      </div>
+      
+      {expandedFolders.app && (
+        <div className="pl-4">
+          <div 
+            className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
+            onClick={() => toggleFolder('modelPage')}
+          >
+            {expandedFolders.modelPage ? <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" /> : <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />}
+            <Folder className="w-4 h-4 mr-2 text-blue-400" />
+            <span className="text-[#C5C5C5]">model-page</span>
+          </div>
+          
+          {expandedFolders.modelPage && (
+            <div className="pl-4">
+              <div 
+                className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
+                  activeFile === 'examplePage' ? 'bg-[#2A2D2E]' : ''
+                }`}
+                onClick={() => onSelectFile('examplePage', projectStructure.examplePageContent)}
+              >
+                <FileText className={`w-4 h-4 mr-2 ${getIcon('page')}`} />
+                <span className="text-[#C5C5C5]">page.{lang.extension}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -1163,7 +1014,6 @@ export default function GLBConverter() {
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'upload' | 'preview' | 'code'>('upload');
   const [gltfData, setGltfData] = useState<any>(null);
-
   // Display options
   const [displayMode, setDisplayMode] = useState<'original' | 'wireframe' | 'solid' | 'normals' | 'depth' | 'points'>('original');
   const [autoRotate, setAutoRotate] = useState(true);
@@ -1171,6 +1021,35 @@ export default function GLBConverter() {
   const [showAxes, setShowAxes] = useState(false);
   const [componentName, setComponentName] = useState('Model');
   const [selectedLanguage, setSelectedLanguage] = useState<LanguageId>('typescript');
+  const [expandedFolders, setExpandedFolders] = useState({
+    components: true,
+    componentName: true,
+    geometries: false,
+    meshes: true,
+    materials: false,
+    app: true,
+    modelPage: true
+  });
+  const [activeFile, setActiveFile] = useState<string | null>('index');
+  const [currentFileContent, setCurrentFileContent] = useState('');
+  
+  useEffect(() => {
+    if (projectStructure) {
+      setCurrentFileContent(projectStructure.indexContent);
+    }
+  }, [projectStructure]);
+  
+  const toggleFolder = (folder: keyof typeof expandedFolders) => {
+    setExpandedFolders(prev => ({
+      ...prev,
+      [folder]: !prev[folder]
+    }));
+  };
+  
+  const handleFileSelect = (path: string, content: string) => {
+    setActiveFile(path);
+    setCurrentFileContent(content);
+  };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFile = event.target.files?.[0];
@@ -1179,15 +1058,12 @@ export default function GLBConverter() {
       setError('');
       setIsLoading(true);
       setProgress(0);
-
       try {
         // Create object URL for preview
         const url = URL.createObjectURL(uploadedFile);
         setModelUrl(url);
-
         // Load GLTF with progress tracking for large files
         await loadGLTFWithProgress(url, uploadedFile);
-
         // Generate component name from filename
         const name = uploadedFile.name.replace('.glb', '').replace(/[^a-zA-Z0-9]/g, '');
         const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1);
@@ -1207,18 +1083,15 @@ export default function GLBConverter() {
   const loadGLTFWithProgress = async (url: string, file: File): Promise<void> => {
     setIsProcessing(true);
     setProgress(0);
-
     return new Promise<void>((resolve, reject) => {
       try {
         // Set up DRACO decoder for compressed models (common in large GLBs)
         const dracoLoader = new DRACOLoader();
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-
         // Track progress for large files
         const xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'arraybuffer';
-
         xhr.onload = function() {
           if (xhr.status === 200) {
             try {
@@ -1231,7 +1104,6 @@ export default function GLBConverter() {
                 (gltf) => {
                   // Store GLTF data for transpilation
                   setGltfData(gltf);
-                  
                   // Generate project structure
                   const structure = generateProjectStructure(
                     gltf, 
@@ -1258,18 +1130,15 @@ export default function GLBConverter() {
             reject(new Error(`Failed to load file: ${xhr.statusText}`));
           }
         };
-
         xhr.onprogress = function(event) {
           if (event.lengthComputable) {
             const percentComplete = (event.loaded / event.total) * 100;
             setProgress(percentComplete);
           }
         };
-
         xhr.onerror = function() {
           reject(new Error('Network error occurred while loading the file'));
         };
-
         xhr.send();
       } catch (err) {
         setIsProcessing(false);
@@ -1283,7 +1152,6 @@ export default function GLBConverter() {
     if (gltfData && componentName && activeTab === 'code') {
       setIsProcessing(true);
       setProgress(0);
-
       try {
         console.log(`Regenerating project structure for ${selectedLanguage}...`);
         // Generate project structure with current settings
@@ -1307,22 +1175,18 @@ export default function GLBConverter() {
 
   const downloadZip = (includeExamplePage: boolean = false) => {
     if (!projectStructure) return;
-
     setIsProcessing(true);
     try {
       const zip = new JSZip();
       const lang = LANGUAGES.find(l => l.id === selectedLanguage);
       if (!lang) return;
-
       // Create folder structure
       const componentFolder = zip.folder(`components/${componentName}`);
       const meshesFolder = componentFolder?.folder('meshes');
       const geometriesFolder = componentFolder?.folder('geometries');
       const materialsFolder = componentFolder?.folder('materials');
-
       // Add index file
       componentFolder?.file(`index.${lang.extension}`, projectStructure.indexContent);
-
       // Add geometry files
       projectStructure.geometries?.forEach(geometry => {
         geometriesFolder?.file(
@@ -1330,24 +1194,20 @@ export default function GLBConverter() {
           geometry.content
         );
       });
-
       // Add mesh files
       projectStructure.meshes.forEach(mesh => {
         meshesFolder?.file(`${mesh.name}.${lang.extension}`, mesh.content);
       });
-
       // Add material files
       projectStructure.materials.forEach(material => {
         materialsFolder?.file(`${material.name}.${lang.extension}`, material.content);
       });
-
       // Add example page if requested
       if (includeExamplePage) {
         const appFolder = zip.folder('app');
         const modelPageFolder = appFolder?.folder(`${componentName.toLowerCase()}-page`);
         modelPageFolder?.file(`page.${lang.extension}`, projectStructure.examplePageContent);
       }
-
       // Generate and download zip
       zip.generateAsync({ type: 'blob' }).then(content => {
         const suffix = includeExamplePage ? '-with-example' : '';
@@ -1363,7 +1223,6 @@ export default function GLBConverter() {
 
   const downloadCurrentView = () => {
     if (!gltfData) return;
-
     setIsProcessing(true);
     try {
       // Generate project structure with current display mode
@@ -1376,16 +1235,13 @@ export default function GLBConverter() {
       const zip = new JSZip();
       const lang = LANGUAGES.find(l => l.id === selectedLanguage);
       if (!lang) return;
-
       // Create folder structure
       const componentFolder = zip.folder(`components/${componentName}-${displayMode}`);
       const meshesFolder = componentFolder?.folder('meshes');
       const geometriesFolder = componentFolder?.folder('geometries');
       const materialsFolder = componentFolder?.folder('materials');
-
       // Add index file
       componentFolder?.file(`index.${lang.extension}`, structure.indexContent);
-
       // Add geometry files
       structure.geometries?.forEach(geometry => {
         geometriesFolder?.file(
@@ -1393,22 +1249,18 @@ export default function GLBConverter() {
           geometry.content
         );
       });
-
       // Add mesh files
       structure.meshes.forEach(mesh => {
         meshesFolder?.file(`${mesh.name}.${lang.extension}`, mesh.content);
       });
-
       // Add material files
       structure.materials.forEach(material => {
         materialsFolder?.file(`${material.name}.${lang.extension}`, material.content);
       });
-
       // Add example page
       const appFolder = zip.folder('app');
       const modelPageFolder = appFolder?.folder(`${componentName.toLowerCase()}-${displayMode}-page`);
       modelPageFolder?.file(`page.${lang.extension}`, structure.examplePageContent);
-
       // Generate and download zip
       zip.generateAsync({ type: 'blob' }).then(content => {
         saveAs(content, `${componentName}-${displayMode}-${selectedLanguage}.zip`);
@@ -1434,595 +1286,473 @@ export default function GLBConverter() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-slate-100">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3">
-            <Code className="w-10 h-10 text-purple-400" />
-            GLB to Code Converter
-          </h1>
-          <p className="text-slate-300 max-w-3xl mx-auto text-lg">
-            Convert your GLB 3D models into self-contained components in 15+ programming languages with separate geometry blocks for easier maintenance.
-            Handles large files efficiently with progress tracking and memory optimization.
-          </p>
+    <div className="min-h-screen bg-[#1E1E1E] text-slate-100">
+      {/* VS Code Window Controls */}
+      <div className="bg-[#3C3C3C] h-8 flex items-center px-4">
+        <div className="flex space-x-1.5 mr-4">
+          <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
         </div>
+        <div className="text-xs text-[#CCCCCC] overflow-hidden whitespace-nowrap text-ellipsis max-w-[60%]">
+          GLB to Code Converter - Model.glb
+        </div>
+      </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-slate-800 rounded-lg p-1 flex">
-            <button
-              onClick={() => setActiveTab('upload')}
-              className={`px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${
-                activeTab === 'upload'
-                  ? 'bg-purple-600 text-white'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Upload className="w-4 h-4" />
-              Upload
-            </button>
-            <button
-              onClick={() => setActiveTab('preview')}
-              disabled={!file}
-              className={`px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${
-                activeTab === 'preview' && file
-                  ? 'bg-purple-600 text-white'
-                  : 'text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'
-              }`}
-            >
-              <Eye className="w-4 h-4" />
-              Preview
-            </button>
-            <button
-              onClick={() => setActiveTab('code')}
-              disabled={!projectStructure}
-              className={`px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${
-                activeTab === 'code' && projectStructure
-                  ? 'bg-purple-600 text-white'
-                  : 'text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'
-              }`}
-            >
-              <Code className="w-4 h-4" />
-              Code
-            </button>
+      <div className="flex h-[calc(100vh-2rem)]">
+        {/* Sidebar */}
+        <div className="w-64 bg-[#252526] border-r border-[#3c3c3c] flex flex-col">
+          <div className="p-3 border-b border-[#3c3c3c]">
+            <h2 className="text-sm font-medium text-[#CCCCCC] flex items-center">
+              <Folder className="w-4 h-4 mr-2 text-yellow-400" />
+              EXPLORER
+            </h2>
           </div>
-        </div>
-
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-900/50 border border-red-500 rounded-lg p-4 mb-6 max-w-2xl mx-auto">
-            <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 text-red-400 mr-2" />
-              <span className="text-red-200">{error}</span>
+          
+          {activeTab === 'code' && projectStructure ? (
+            <div className="flex-1 overflow-y-auto p-1">
+              <FileTree 
+                projectStructure={projectStructure}
+                selectedLanguage={selectedLanguage}
+                onSelectFile={handleFileSelect}
+                expandedFolders={expandedFolders}
+                toggleFolder={toggleFolder}
+                activeFile={activeFile}
+              />
             </div>
-          </div>
-        )}
-
-        {/* Upload Tab */}
-        {activeTab === 'upload' && (
-          <div className="max-w-2xl mx-auto">
-            <div className="bg-slate-800 rounded-xl p-8 border border-slate-700">
-              <div className="text-center">
-                <div className="border-2 border-dashed border-slate-600 rounded-lg p-12 hover:border-purple-500 transition-colors">
-                  <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    Upload your GLB model
-                  </h3>
-                  <p className="text-slate-400 mb-6">
-                    Drop your .glb file here or click to browse
-                  </p>
-                  <input
-                    type="file"
-                    accept=".glb"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                    disabled={isLoading}
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className={`bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg cursor-pointer transition-colors inline-block ${
-                      isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      'Choose File'
-                    )}
-                  </label>
-                </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto p-3">
+              <div className="text-[#858585] text-sm">
+                {activeTab === 'upload' ? (
+                  <div className="space-y-2">
+                    <p>Upload a GLB file to get started.</p>
+                    <p>Supported file: .glb</p>
+                  </div>
+                ) : activeTab === 'preview' ? (
+                  <div className="space-y-2">
+                    <p>Preview your 3D model with different display modes.</p>
+                    <p>Use the controls to rotate, zoom, and pan.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p>Select a file from the project structure to view its code.</p>
+                    <p>Use the language selector to switch between programming languages.</p>
+                  </div>
+                )}
               </div>
-
-              {/* Progress Bar for Large Files */}
-              {(isLoading || isProcessing) && (
-                <div className="mt-6">
-                  <div className="flex justify-between mb-1">
-                    <span className="text-slate-300 text-sm">
-                      {isProcessing ? 'Processing model...' : 'Loading file...'}
-                    </span>
-                    <span className="text-slate-300 text-sm">{Math.round(progress)}%</span>
-                  </div>
-                  <div className="w-full bg-slate-700 rounded-full h-2.5">
-                    <div 
-                      className="bg-purple-600 h-2.5 rounded-full transition-all duration-300" 
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-slate-400 text-xs mt-2">
-                    {progress < 100
-                      ? "Loading large model. This may take a few moments..."
-                      : "Optimizing model data for transpilation..."
-                    }
-                  </p>
+            </div>
+          )}
+          
+          <div className="p-3 border-t border-[#3c3c3c]">
+            <div className="text-xs text-[#858585]">
+              {activeTab === 'code' && projectStructure ? (
+                <div className="flex items-center">
+                  <Folder className="w-4 h-4 mr-2 text-yellow-400" />
+                  <span className="overflow-hidden whitespace-nowrap text-ellipsis">
+                    {componentName}
+                  </span>
                 </div>
+              ) : (
+                <div className="text-[#858585]">No project loaded</div>
               )}
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Preview Tab */}
-        {activeTab === 'preview' && modelUrl && (
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-slate-800 rounded-xl p-6 border border-slate-700">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-white">3D Model Preview</h3>
-                <div className="flex items-center gap-4">
-                  {/* Display Mode Controls */}
-                  <div className="flex items-center gap-2">
-                    <label className="text-slate-300 text-sm">Display Mode:</label>
-                    <select
-                      value={displayMode}
-                      onChange={(e) => setDisplayMode(e.target.value as any)}
-                      className="bg-slate-700 text-white px-3 py-1 rounded border border-slate-600 focus:border-purple-500 outline-none text-sm"
-                    >
-                      <option value="original">Original</option>
-                      <option value="wireframe">Wireframe</option>
-                      <option value="solid">Solid Color</option>
-                      <option value="normals">Normals</option>
-                      <option value="depth">Depth</option>
-                      <option value="points">Point Cloud</option>
-                    </select>
-                  </div>
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Navigation Tabs */}
+          <div className="bg-[#2D2D2D] border-b border-[#3c3c3c] h-10 flex items-center px-4">
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setActiveTab('upload')}
+                className={`text-sm flex items-center gap-1 px-2 py-1 rounded ${
+                  activeTab === 'upload'
+                    ? 'bg-[#3C3C3C] text-[#FFFFFF]'
+                    : 'text-[#B8B8B8] hover:bg-[#3C3C3C] hover:text-[#FFFFFF]'
+                }`}
+              >
+                <Upload className="w-3 h-3" />
+                Upload
+              </button>
+              <button
+                onClick={() => setActiveTab('preview')}
+                disabled={!file}
+                className={`text-sm flex items-center gap-1 px-2 py-1 rounded ${
+                  activeTab === 'preview' && file
+                    ? 'bg-[#3C3C3C] text-[#FFFFFF]'
+                    : 'text-[#B8B8B8] hover:bg-[#3C3C3C] hover:text-[#FFFFFF] disabled:opacity-50'
+                }`}
+              >
+                <Eye className="w-3 h-3" />
+                Preview
+              </button>
+              <button
+                onClick={() => setActiveTab('code')}
+                disabled={!projectStructure}
+                className={`text-sm flex items-center gap-1 px-2 py-1 rounded ${
+                  activeTab === 'code' && projectStructure
+                    ? 'bg-[#3C3C3C] text-[#FFFFFF]'
+                    : 'text-[#B8B8B8] hover:bg-[#3C3C3C] hover:text-[#FFFFFF] disabled:opacity-50'
+                }`}
+              >
+                <Code className="w-3 h-3" />
+                Code
+              </button>
+            </div>
+          </div>
 
-                  {/* Toggle Controls */}
-                  <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 text-slate-300 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={autoRotate}
-                        onChange={(e) => setAutoRotate(e.target.checked)}
-                        className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500"
-                      />
-                      Auto Rotate
-                    </label>
-                    <label className="flex items-center gap-2 text-slate-300 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={showGrid}
-                        onChange={(e) => setShowGrid(e.target.checked)}
-                        className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500"
-                      />
-                      Grid
-                    </label>
-                    <label className="flex items-center gap-2 text-slate-300 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={showAxes}
-                        onChange={(e) => setShowAxes(e.target.checked)}
-                        className="rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500"
-                      />
-                      Axes
-                    </label>
-                  </div>
-
-                  <button
-                    onClick={downloadCurrentView}
-                    disabled={isProcessing}
-                    className={`bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
-                      isProcessing ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <File className="w-4 h-4" />
-                        Download {displayMode} Version
-                      </>
-                    )}
-                  </button>
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {/* Error Display */}
+            {error && (
+              <div className="bg-[#6A0000] border border-[#FF5252] rounded p-3 mb-4 max-w-2xl mx-auto">
+                <div className="flex items-center">
+                  <AlertCircle className="w-4 h-4 text-[#FF5252] mr-2" />
+                  <span className="text-[#FF5252] text-sm">{error}</span>
                 </div>
               </div>
+            )}
 
-              {/* Display Mode Description */}
-              <div className="mb-4">
-                <div className="bg-slate-900 rounded-lg p-3">
-                  <p className="text-slate-400 text-sm">
-                    {displayMode === 'original' && 'Showing the original model with its materials and textures.'}
-                    {displayMode === 'wireframe' && 'Displaying the model as a wireframe structure showing the mesh geometry.'}
-                    {displayMode === 'solid' && 'Rendering the model with a uniform solid color material.'}
-                    {displayMode === 'normals' && 'Visualizing surface normals with color-coded directions (RGB = XYZ).'}
-                    {displayMode === 'depth' && 'Showing depth information - closer surfaces appear lighter.'}
-                    {displayMode === 'points' && 'Displaying the model as a point cloud of vertices.'}
+            {/* Upload Tab */}
+            {activeTab === 'upload' && (
+              <div className="max-w-2xl mx-auto mt-8">
+                <div className="bg-[#252526] rounded p-8 border border-[#3c3c3c]">
+                  <div className="text-center">
+                    <div className="border-2 border-dashed border-[#3c3c3c] rounded p-12 hover:border-purple-500 transition-colors">
+                      <Upload className="w-12 h-12 text-[#858585] mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-[#CCCCCC] mb-2">
+                        Upload your GLB model
+                      </h3>
+                      <p className="text-[#858585] mb-6">
+                        Drop your .glb file here or click to browse
+                      </p>
+                      <input
+                        type="file"
+                        accept=".glb"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="file-upload"
+                        disabled={isLoading}
+                      />
+                      <label
+                        htmlFor="file-upload"
+                        className={`bg-[#0E639C] hover:bg-[#107FC9] text-white px-4 py-2 rounded cursor-pointer transition-colors inline-block ${
+                          isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          'Choose File'
+                        )}
+                      </label>
+                    </div>
+                  </div>
+                  {/* Progress Bar for Large Files */}
+                  {(isLoading || isProcessing) && (
+                    <div className="mt-6">
+                      <div className="flex justify-between mb-1">
+                        <span className="text-[#CCCCCC] text-sm">
+                          {isProcessing ? 'Processing model...' : 'Loading file...'}
+                        </span>
+                        <span className="text-[#CCCCCC] text-sm">{Math.round(progress)}%</span>
+                      </div>
+                      <div className="w-full bg-[#3c3c3c] rounded h-1.5">
+                        <div 
+                          className="bg-[#0E70C0] h-1.5 rounded transition-all duration-300" 
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      <p className="text-[#858585] text-xs mt-2">
+                        {progress < 100
+                          ? "Loading large model. This may take a few moments..."
+                          : "Optimizing model data for transpilation..."
+                        }
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Preview Tab */}
+            {activeTab === 'preview' && modelUrl && (
+              <div className="max-w-6xl mx-auto">
+                <div className="bg-[#252526] rounded p-6 border border-[#3c3c3c]">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-medium text-[#CCCCCC]">3D Model Preview</h3>
+                    <div className="flex items-center gap-4">
+                      {/* Display Mode Controls */}
+                      <div className="flex items-center gap-2">
+                        <label className="text-[#CCCCCC] text-sm">Display Mode:</label>
+                        <select
+                          value={displayMode}
+                          onChange={(e) => setDisplayMode(e.target.value as any)}
+                          className="bg-[#3C3C3C] text-[#CCCCCC] px-2 py-1 rounded border border-[#3c3c3c] focus:border-purple-500 outline-none text-sm"
+                        >
+                          <option value="original">Original</option>
+                          <option value="wireframe">Wireframe</option>
+                          <option value="solid">Solid Color</option>
+                          <option value="normals">Normals</option>
+                          <option value="depth">Depth</option>
+                          <option value="points">Point Cloud</option>
+                        </select>
+                      </div>
+                      {/* Toggle Controls */}
+                      <div className="flex items-center gap-4">
+                        <label className="flex items-center gap-2 text-[#CCCCCC] text-sm">
+                          <input
+                            type="checkbox"
+                            checked={autoRotate}
+                            onChange={(e) => setAutoRotate(e.target.checked)}
+                            className="rounded border-[#3c3c3c] bg-[#3C3C3C] text-[#0E70C0] focus:ring-[#0E70C0]"
+                          />
+                          Auto Rotate
+                        </label>
+                        <label className="flex items-center gap-2 text-[#CCCCCC] text-sm">
+                          <input
+                            type="checkbox"
+                            checked={showGrid}
+                            onChange={(e) => setShowGrid(e.target.checked)}
+                            className="rounded border-[#3c3c3c] bg-[#3C3C3C] text-[#0E70C0] focus:ring-[#0E70C0]"
+                          />
+                          Grid
+                        </label>
+                        <label className="flex items-center gap-2 text-[#CCCCCC] text-sm">
+                          <input
+                            type="checkbox"
+                            checked={showAxes}
+                            onChange={(e) => setShowAxes(e.target.checked)}
+                            className="rounded border-[#3c3c3c] bg-[#3C3C3C] text-[#0E70C0] focus:ring-[#0E70C0]"
+                          />
+                          Axes
+                        </label>
+                      </div>
+                      <button
+                        onClick={downloadCurrentView}
+                        disabled={isProcessing}
+                        className={`bg-[#0E639C] hover:bg-[#107FC9] text-white px-3 py-1.5 rounded transition-colors flex items-center gap-2 ${
+                          isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                      >
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <File className="w-4 h-4" />
+                            Download {displayMode} Version
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  {/* Display Mode Description */}
+                  <div className="mb-4">
+                    <div className="bg-[#2D2D2D] rounded p-3">
+                      <p className="text-[#858585] text-sm">
+                        {displayMode === 'original' && 'Showing the original model with its materials and textures.'}
+                        {displayMode === 'wireframe' && 'Displaying the model as a wireframe structure showing the mesh geometry.'}
+                        {displayMode === 'solid' && 'Rendering the model with a uniform solid color material.'}
+                        {displayMode === 'normals' && 'Visualizing surface normals with color-coded directions (RGB = XYZ).'}
+                        {displayMode === 'depth' && 'Showing depth information - closer surfaces appear lighter.'}
+                        {displayMode === 'points' && 'Displaying the model as a point cloud of vertices.'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="bg-[#1E1E1E] rounded overflow-hidden" style={{ height: '500px' }}>
+                    <Canvas 
+                      camera={{ position: [0, 0, 5], fov: 50 }}
+                      gl={{
+                        powerPreference: "high-performance",
+                        antialias: true,
+                        alpha: true
+                      }}
+                    >
+                      <ambientLight intensity={0.5} />
+                      <pointLight position={[10, 10, 10]} />
+                      <pointLight position={[-10, -10, -10]} intensity={0.3} />
+                      {/* Memory-optimized loading for large models */}
+                      {modelUrl && (
+                        <React.Suspense fallback={
+                          <Html center>
+                            <div className="text-white bg-black/50 p-2 rounded">
+                              <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
+                              Loading model...
+                            </div>
+                          </Html>
+                        }>
+                          <ModelPreview 
+                            url={modelUrl} 
+                            displayMode={displayMode} 
+                            autoRotate={autoRotate} 
+                          />
+                        </React.Suspense>
+                      )}
+                      {showGrid && (
+                        <gridHelper args={[10, 10, '#444444', '#666666']} />
+                      )}
+                      {showAxes && (
+                        <axesHelper args={[2]} />
+                      )}
+                      <OrbitControls 
+                        enableZoom 
+                        enablePan 
+                        enableRotate 
+                        minDistance={0.1}
+                        maxDistance={100}
+                      />
+                      <Environment preset="studio" />
+                    </Canvas>
+                  </div>
+                  <p className="text-[#858585] text-sm mt-4 text-center">
+                    Use mouse to rotate, zoom, and pan around the model. Try different display modes to analyze the model structure.
                   </p>
                 </div>
               </div>
+            )}
 
-              <div className="bg-slate-900 rounded-lg overflow-hidden" style={{ height: '500px' }}>
-                <Canvas 
-                  camera={{ position: [0, 0, 5], fov: 50 }}
-                  gl={{
-                    powerPreference: "high-performance",
-                    antialias: true,
-                    alpha: true
-                  }}
-                >
-                  <ambientLight intensity={0.5} />
-                  <pointLight position={[10, 10, 10]} />
-                  <pointLight position={[-10, -10, -10]} intensity={0.3} />
-
-                  {/* Memory-optimized loading for large models */}
-                  {modelUrl && (
-                    <React.Suspense fallback={
-                      <Html center>
-                        <div className="text-white bg-black/50 p-2 rounded">
-                          <Loader2 className="w-4 h-4 inline mr-2 animate-spin" />
-                          Loading model...
-                        </div>
-                      </Html>
-                    }>
-                      <ModelPreview 
-                        url={modelUrl} 
-                        displayMode={displayMode} 
-                        autoRotate={autoRotate} 
+            {/* Code Tab - VS Code Style */}
+            {activeTab === 'code' && projectStructure && (
+              <div className="h-full flex flex-col">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-lg font-medium text-[#CCCCCC]">
+                      {activeFile ? (
+                        activeFile === 'index' ? 'index' :
+                        activeFile === 'examplePage' ? 'page' :
+                        activeFile.includes('geometry') ? 'Geometry' :
+                        activeFile.includes('mesh') ? 'Mesh' : 'Material'
+                      ) + `.${LANGUAGES.find(l => l.id === selectedLanguage)?.extension || 'ts'}`
+                      : 'Code Editor'}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <LanguageSelector 
+                        selectedLanguage={selectedLanguage} 
+                        onChange={setSelectedLanguage} 
                       />
-                    </React.Suspense>
-                  )}
-
-                  {showGrid && (
-                    <gridHelper args={[10, 10, '#444444', '#666666']} />
-                  )}
-
-                  {showAxes && (
-                    <axesHelper args={[2]} />
-                  )}
-
-                  <OrbitControls 
-                    enableZoom 
-                    enablePan 
-                    enableRotate 
-                    minDistance={0.1}
-                    maxDistance={100}
-                  />
-                  <Environment preset="studio" />
-                </Canvas>
-              </div>
-
-              <p className="text-slate-400 text-sm mt-4 text-center">
-                Use mouse to rotate, zoom, and pan around the model. Try different display modes to analyze the model structure.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {isProcessing && activeTab === 'code' && (
-          <div className="absolute top-4 right-4 bg-slate-800 px-3 py-1 rounded text-sm text-purple-400">
-            Regenerating code...
-          </div>
-        )}
-
-        {/* Code Tab */}
-        {activeTab === 'code' && projectStructure && (
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-slate-800 rounded-xl border border-slate-700">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 border-b border-slate-700 gap-4">
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                  <h3 className="text-xl font-semibold text-white">
-                    Project Structure
-                  </h3>
-                  {/* Language Selection */}
-                  <div className="flex items-center gap-2">
-                    <LanguageSelector 
-                      selectedLanguage={selectedLanguage} 
-                      onChange={setSelectedLanguage} 
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                  <button
-                    onClick={() => downloadZip(true)}
-                    disabled={isProcessing}
-                    className={`bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto ${
-                      isProcessing ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <Layout className="w-4 h-4" />
-                        Download Full Project
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={() => downloadZip(false)}
-                    disabled={isProcessing}
-                    className={`bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto ${
-                      isProcessing ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      <>
-                        <File className="w-4 h-4" />
-                        Download Component
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    onClick={downloadModel}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download GLB
-                  </button>
-                </div>
-              </div>
-
-              {/* Project Structure Overview */}
-              <div className="p-6 border-b border-slate-700">
-                <div className="flex flex-col lg:flex-row items-start gap-6">
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                      <Folder className="w-5 h-5 mr-2 text-purple-400" />
-                      Project Structure
-                    </h4>
-                    <div className="bg-slate-900 rounded-lg p-4">
-                      <div className="text-slate-400 text-sm">
-                        <div className="flex items-center">
-                          <Folder className="w-4 h-4 mr-2 text-yellow-400" />
-                          <span className="font-medium">components</span>
-                        </div>
-                        <div className="pl-6">
-                          <div className="flex items-center">
-                            <Folder className="w-4 h-4 mr-2 text-blue-400" />
-                            <span className="font-medium">{componentName}</span>
-                          </div>
-                          <div className="pl-6">
-                            <div className="flex items-center">
-                              <FileText className="w-4 h-4 mr-2 text-green-400" />
-                              <span>index.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}</span>
-                            </div>
-                            
-                            <div className="flex items-center mt-2">
-                              <Folder className="w-4 h-4 mr-2 text-cyan-400" />
-                              <span className="font-medium">geometries</span>
-                            </div>
-                            <div className="pl-6">
-                              {projectStructure.geometries?.map((geometry, i) => (
-                                <div key={i} className="flex items-center">
-                                  <File className="w-4 h-4 mr-2 text-cyan-400" />
-                                  <span>{geometry.name}Geometry.{LANGUAGES.find(l => l.id === selectedLanguage)?.geometryExtension}</span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="flex items-center mt-2">
-                              <Folder className="w-4 h-4 mr-2 text-cyan-400" />
-                              <span className="font-medium">meshes</span>
-                            </div>
-                            <div className="pl-6">
-                              {projectStructure.meshes.map((mesh, i) => (
-                                <div key={i} className="flex items-center">
-                                  <File className="w-4 h-4 mr-2 text-cyan-400" />
-                                  <span>{mesh.name}.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}</span>
-                                </div>
-                              ))}
-                            </div>
-
-                            <div className="flex items-center mt-2">
-                              <Folder className="w-4 h-4 mr-2 text-orange-400" />
-                              <span className="font-medium">materials</span>
-                            </div>
-                            <div className="pl-6">
-                              {projectStructure.materials.map((material, i) => (
-                                <div key={i} className="flex items-center">
-                                  <File className="w-4 h-4 mr-2 text-orange-400" />
-                                  <span>{material.name}.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-4 flex items-center">
-                          <Folder className="w-4 h-4 mr-2 text-purple-400" />
-                          <span className="font-medium">app</span>
-                        </div>
-                        <div className="pl-6">
-                          <div className="flex items-center">
-                            <Folder className="w-4 h-4 mr-2 text-blue-400" />
-                            <span className="font-medium">{componentName.toLowerCase()}-page</span>
-                          </div>
-                          <div className="pl-6">
-                            <div className="flex items-center">
-                              <FileText className="w-4 h-4 mr-2 text-green-400" />
-                              <span>page.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                      <FileText className="w-5 h-5 mr-2 text-purple-400" />
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => downloadZip(true)}
+                      disabled={isProcessing}
+                      className={`bg-[#0E639C] hover:bg-[#107FC9] text-white px-3 py-1.5 rounded transition-colors flex items-center gap-2 ${
+                        isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Layout className="w-4 h-4" />
+                          Download Full Project
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => downloadZip(false)}
+                      disabled={isProcessing}
+                      className={`bg-[#0E639C] hover:bg-[#107FC9] text-white px-3 py-1.5 rounded transition-colors flex items-center gap-2 ${
+                        isProcessing ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <File className="w-4 h-4" />
+                          Download Component
+                        </>
+                      )}
+                    </button>
+                    <button
+                      onClick={downloadModel}
+                      className="bg-[#237A57] hover:bg-[#2B9348] text-white px-3 py-1.5 rounded transition-colors flex items-center gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      Download GLB
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="flex-1 min-h-0">
+                  <CodeEditor 
+                    code={currentFileContent} 
+                    languageId={selectedLanguage} 
+                  />
+                </div>
+                
+                {/* Statistics Section - Now in a collapsible panel at the bottom */}
+                <div className="mt-4 border-t border-[#3c3c3c] pt-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="text-sm font-medium text-[#CCCCCC] flex items-center">
+                      <Terminal className="w-4 h-4 mr-2 text-purple-400" />
                       Model Statistics
                     </h4>
-                    <div className="bg-slate-900 rounded-lg p-4">
-                      <div className="text-slate-400 text-sm space-y-2">
-                        <div className="flex justify-between">
-                          <span>Meshes:</span>
-                          <span className="font-medium">{projectStructure.meshes.length}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Geometry Files:</span>
-                          <span className="font-medium">{projectStructure.geometries?.length || 0}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Materials:</span>
-                          <span className="font-medium">{projectStructure.materials.length}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Vertices:</span>
-                          <span className="font-medium">{projectStructure.totalVertices.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Triangles:</span>
-                          <span className="font-medium">{projectStructure.totalTriangles.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>File Size:</span>
-                          <span className="font-medium">{file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'N/A'}</span>
-                        </div>
-                        <div className="pt-2 border-t border-slate-700 mt-2">
-                          <p className="text-xs text-slate-500">
-                            {`Note: For extremely large models (>100MB), some meshes might be simplified
-                             during transpilation to prevent browser memory issues.`}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Code Preview */}
-              <div className="p-6">
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                    <FileText className="w-5 h-5 mr-2 text-purple-400" />
-                    index.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension} - Main Component
-                  </h4>
-                  <CodeEditor code={projectStructure.indexContent} languageId={selectedLanguage} />
-                </div>
-
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                    <Folder className="w-5 h-5 mr-2 text-cyan-400" />
-                    Example Page
-                  </h4>
-                  <div className="bg-slate-900 rounded-lg overflow-hidden">
-                    <div className="px-4 py-2 bg-slate-800 border-b border-slate-700">
-                      <span className="text-purple-400 font-mono">
-                        app/{componentName.toLowerCase()}-page/page.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}
+                    <div className="flex space-x-2">
+                      <span className="text-xs text-[#858585]">
+                        {file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'N/A'} • {projectStructure.meshes.length} meshes
                       </span>
                     </div>
-                    <CodeEditor code={projectStructure.examplePageContent} languageId={selectedLanguage} />
                   </div>
-                </div>
-
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                    <Folder className="w-5 h-5 mr-2 text-cyan-400" />
-                    Geometry Files
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {projectStructure.geometries?.slice(0, 3).map((geometry, i) => (
-                      <div key={i} className="bg-slate-900 rounded-lg overflow-hidden">
-                        <div className="px-4 py-2 bg-slate-800 border-b border-slate-700">
-                          <span className="text-cyan-400 font-mono">
-                            {geometry.name}Geometry.{LANGUAGES.find(l => l.id === selectedLanguage)?.geometryExtension}
-                          </span>
-                        </div>
-                        <CodeEditor code={geometry.content} languageId={selectedLanguage} />
-                      </div>
-                    ))}
-                    {projectStructure.geometries && projectStructure.geometries.length > 3 && (
-                      <div className="col-span-full text-center text-slate-400 text-sm py-4">
-                        ... and {projectStructure.geometries.length - 3} more geometry files
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mb-6">
-                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                    <Folder className="w-5 h-5 mr-2 text-cyan-400" />
-                    Mesh Components
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {projectStructure.meshes.slice(0, 3).map((mesh, i) => (
-                      <div key={i} className="bg-slate-900 rounded-lg overflow-hidden">
-                        <div className="px-4 py-2 bg-slate-800 border-b border-slate-700">
-                          <span className="text-cyan-400 font-mono">
-                            {mesh.name}.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}
-                          </span>
-                        </div>
-                        <CodeEditor code={mesh.content} languageId={selectedLanguage} />
-                      </div>
-                    ))}
-                    {projectStructure.meshes.length > 3 && (
-                      <div className="col-span-full text-center text-slate-400 text-sm py-4">
-                        ... and {projectStructure.meshes.length - 3} more mesh components
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-lg font-semibold text-white mb-3 flex items-center">
-                    <Folder className="w-5 h-5 mr-2 text-orange-400" />
-                    Material Components
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {projectStructure.materials.slice(0, 3).map((material, i) => (
-                      <div key={i} className="bg-slate-900 rounded-lg overflow-hidden">
-                        <div className="px-4 py-2 bg-slate-800 border-b border-slate-700">
-                          <span className="text-orange-400 font-mono">
-                            {material.name}.{LANGUAGES.find(l => l.id === selectedLanguage)?.extension}
-                          </span>
-                        </div>
-                        <CodeEditor code={material.content} languageId={selectedLanguage} />
-                      </div>
-                    ))}
-                    {projectStructure.materials.length > 3 && (
-                      <div className="col-span-full text-center text-slate-400 text-sm py-4">
-                        ... and {projectStructure.materials.length - 3} more material components
-                      </div>
-                    )}
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
+                    <div className="bg-[#2D2D2D] p-2 rounded">
+                      <div className="text-[#858585]">Meshes</div>
+                      <div className="font-medium text-[#CCCCCC]">{projectStructure.meshes.length}</div>
+                    </div>
+                    <div className="bg-[#2D2D2D] p-2 rounded">
+                      <div className="text-[#858585]">Geometry Files</div>
+                      <div className="font-medium text-[#CCCCCC]">{projectStructure.geometries?.length || 0}</div>
+                    </div>
+                    <div className="bg-[#2D2D2D] p-2 rounded">
+                      <div className="text-[#858585]">Materials</div>
+                      <div className="font-medium text-[#CCCCCC]">{projectStructure.materials.length}</div>
+                    </div>
+                    <div className="bg-[#2D2D2D] p-2 rounded">
+                      <div className="text-[#858585]">Total Vertices</div>
+                      <div className="font-medium text-[#CCCCCC]">{projectStructure.totalVertices.toLocaleString()}</div>
+                    </div>
+                    <div className="bg-[#2D2D2D] p-2 rounded">
+                      <div className="text-[#858585]">Total Triangles</div>
+                      <div className="font-medium text-[#CCCCCC]">{projectStructure.totalTriangles.toLocaleString()}</div>
+                    </div>
+                    <div className="bg-[#2D2D2D] p-2 rounded">
+                      <div className="text-[#858585]">File Size</div>
+                      <div className="font-medium text-[#CCCCCC]">{file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'N/A'}</div>
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* Updated How to Use Section */}
-              <HowToUseSection 
-                selectedLanguage={selectedLanguage} 
-                componentName={componentName} 
-              />
+          {/* Status Bar */}
+          <div className="bg-[#2D2D2D] border-t border-[#3c3c3c] h-8 flex items-center px-4 text-xs text-[#858585]">
+            <div className="flex space-x-4">
+              <span>UTF-8</span>
+              <span>LF</span>
+              <span>{activeTab === 'code' && projectStructure ? projectStructure.meshes.length + ' meshes' : ''}</span>
+            </div>
+            <div className="ml-auto flex space-x-4">
+              <span>{selectedLanguage.toUpperCase()}</span>
+              <span>Line {activeFile ? '1' : ''}, Column {activeFile ? '1' : ''}</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
@@ -2040,23 +1770,19 @@ function ModelPreview({
 }) {
   const [gltf, setGltf] = useState<any>(null);
   const meshRef = useRef<THREE.Group>(null);
-
   // Load GLTF with memory optimization for large files
   useEffect(() => {
     let isMounted = true;
     const loader = new GLTFLoader();
-
     // Set up DRACO for compressed models
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
-
     // For large files, use a more memory-efficient approach
     fetch(url)
       .then(response => response.arrayBuffer())
       .then(data => {
         if (!isMounted) return;
-
         loader.parse(
           data,
           '',
@@ -2067,7 +1793,6 @@ function ModelPreview({
                 if (object.isMesh) {
                   const mesh = object as THREE.Mesh;
                   const geometry = mesh.geometry;
-
                   // Check if the geometry is extremely large
                   const vertexCount = geometry.attributes.position.count;
                   if (vertexCount > 1000000) {
@@ -2077,7 +1802,6 @@ function ModelPreview({
                 }
               });
             }
-
             if (isMounted) {
               setGltf(gltf);
             }
@@ -2090,7 +1814,6 @@ function ModelPreview({
       .catch(error => {
         console.error("Error loading GLB file", error);
       });
-
     return () => {
       isMounted = false;
       // Clean up GLTF resources
@@ -2123,14 +1846,12 @@ function ModelPreview({
         if (child.isMesh) {
           const mesh = child as THREE.Mesh;
           const originalMaterial = mesh.material;
-
           // Dispose of old materials to prevent memory leaks
           if (Array.isArray(originalMaterial)) {
             originalMaterial.forEach(material => material.dispose());
           } else if (originalMaterial && 'dispose' in originalMaterial) {
             (originalMaterial as THREE.Material).dispose();
           }
-
           // Create new materials based on display mode
           switch (displayMode) {
             case 'wireframe':
@@ -2190,7 +1911,7 @@ function ModelPreview({
       </Html>
     );
   }
-
+  
   return (
     <primitive 
       ref={meshRef} 
