@@ -56,13 +56,242 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$build$2f$three$2e$core$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/three/build/three.core.js [app-ssr] (ecmascript)");
 ;
+// Language configuration for code generation
+const LANGUAGES = {
+    typescript: {
+        extension: 'tsx',
+        geometryExtension: 'ts',
+        comment: '//',
+        string: '"',
+        function: 'function',
+        class: 'class',
+        import: 'import',
+        export: 'export',
+        typeDeclaration: (name)=>`type ${name} = {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`${key}: ${value},`,
+        array: (items)=>`[${items.join(', ')}]`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    javascript: {
+        extension: 'jsx',
+        geometryExtension: 'js',
+        comment: '//',
+        string: '"',
+        function: 'function',
+        class: 'class',
+        import: 'import',
+        export: 'export',
+        typeDeclaration: ()=>'',
+        typeEnd: '',
+        objectProperty: (key, value)=>`${key}: ${value},`,
+        array: (items)=>`[${items.join(', ')}]`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    python: {
+        extension: 'py',
+        geometryExtension: 'py',
+        comment: '#',
+        string: "'",
+        function: 'def',
+        class: 'class',
+        import: 'import',
+        export: '',
+        typeDeclaration: ()=>'',
+        typeEnd: '',
+        objectProperty: (key, value)=>`    ${key} = ${value}`,
+        array: (items)=>`[${items.join(', ')}]`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    java: {
+        extension: 'java',
+        geometryExtension: 'java',
+        comment: '//',
+        string: '"',
+        function: '',
+        class: 'class',
+        import: 'import',
+        export: '',
+        typeDeclaration: (name)=>`public class ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    public ${value} ${key};`,
+        array: (items)=>`new ArrayList<>() {{ ${items.map((item)=>`add(${item})`).join('; ')}; }}`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    csharp: {
+        extension: 'cs',
+        geometryExtension: 'cs',
+        comment: '//',
+        string: '"',
+        function: '',
+        class: 'class',
+        import: 'using',
+        export: '',
+        typeDeclaration: (name)=>`public class ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    public ${value} ${key} { get; set; }`,
+        array: (items)=>`new List<${items[0]?.split(' ')[0] || 'object'}> { ${items.join(', ')} }`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    cpp: {
+        extension: 'cpp',
+        geometryExtension: 'h',
+        comment: '//',
+        string: '"',
+        function: '',
+        class: 'class',
+        import: '#include',
+        export: '',
+        typeDeclaration: (name)=>`class ${name} { public:`,
+        typeEnd: '};',
+        objectProperty: (key, value)=>`    ${value} ${key};`,
+        array: (items)=>`{${items.join(', ')}}`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    go: {
+        extension: 'go',
+        geometryExtension: 'go',
+        comment: '//',
+        string: '"',
+        function: 'func',
+        class: 'type',
+        import: 'import',
+        export: '',
+        typeDeclaration: (name)=>`type ${name} struct {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    ${key} ${value} \`json:"${key.toLowerCase()}"\``,
+        array: (items)=>`[]interface{}{${items.join(', ')}}`,
+        stringLiteral: (value)=>`"` + value.replace(/"/g, '\\"') + `"`
+    },
+    rust: {
+        extension: 'rs',
+        geometryExtension: 'rs',
+        comment: '//',
+        string: '"',
+        function: 'fn',
+        class: 'struct',
+        import: 'use',
+        export: '',
+        typeDeclaration: (name)=>`pub struct ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    pub ${key}: ${value},`,
+        array: (items)=>`vec![${items.join(', ')}]`,
+        stringLiteral: (value)=>`"` + value.replace(/"/g, '\\"') + `"`
+    },
+    swift: {
+        extension: 'swift',
+        geometryExtension: 'swift',
+        comment: '//',
+        string: '"',
+        function: 'func',
+        class: 'class',
+        import: 'import',
+        export: '',
+        typeDeclaration: (name)=>`class ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    var ${key}: ${value}`,
+        array: (items)=>`[${items.join(', ')}]`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    kotlin: {
+        extension: 'kt',
+        geometryExtension: 'kt',
+        comment: '//',
+        string: '"',
+        function: 'fun',
+        class: 'class',
+        import: 'import',
+        export: '',
+        typeDeclaration: (name)=>`class ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    var ${key}: ${value}? = null`,
+        array: (items)=>`listOf(${items.join(', ')})`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    ruby: {
+        extension: 'rb',
+        geometryExtension: 'rb',
+        comment: '#',
+        string: '"',
+        function: 'def',
+        class: 'class',
+        import: 'require',
+        export: '',
+        typeDeclaration: (name)=>`class ${name}`,
+        typeEnd: 'end',
+        objectProperty: (key, value)=>`  attr_accessor :${key}`,
+        array: (items)=>`[${items.join(', ')}]`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    php: {
+        extension: 'php',
+        geometryExtension: 'php',
+        comment: '//',
+        string: '"',
+        function: 'function',
+        class: 'class',
+        import: 'use',
+        export: '',
+        typeDeclaration: (name)=>`class ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`    private $${key};`,
+        array: (items)=>`array(${items.join(', ')})`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    scala: {
+        extension: 'scala',
+        geometryExtension: 'scala',
+        comment: '//',
+        string: '"',
+        function: 'def',
+        class: 'class',
+        import: 'import',
+        export: '',
+        typeDeclaration: (name)=>`case class ${name} (`,
+        typeEnd: ')',
+        objectProperty: (key, value)=>`${key}: ${value},`,
+        array: (items)=>`Seq(${items.join(', ')})`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    dart: {
+        extension: 'dart',
+        geometryExtension: 'dart',
+        comment: '//',
+        string: '"',
+        function: 'void',
+        class: 'class',
+        import: 'import',
+        export: '',
+        typeDeclaration: (name)=>`class ${name} {`,
+        typeEnd: '}',
+        objectProperty: (key, value)=>`  ${value} ${key};`,
+        array: (items)=>`[${items.join(', ')}]`,
+        stringLiteral: (value)=>`"${value}"`
+    },
+    r: {
+        extension: 'R',
+        geometryExtension: 'R',
+        comment: '#',
+        string: '"',
+        function: 'function',
+        class: 'setClass',
+        import: 'library',
+        export: '',
+        typeDeclaration: (name)=>`setClass("${name}", slots = list(`,
+        typeEnd: '))',
+        objectProperty: (key, value)=>`"${key}" = "${value}",`,
+        array: (items)=>`c(${items.join(', ')})`,
+        stringLiteral: (value)=>`"${value}"`
+    }
+};
 /**
  * Capitalizes the first letter of a string
  * Required for React components which must start with uppercase letters
  */ function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
-function generateProjectStructure(gltf, componentName, displayMode = 'original') {
+function generateProjectStructure(gltf, componentName, displayMode = 'original', languageId = 'typescript') {
+    const lang = LANGUAGES[languageId];
     const meshes = [];
     const materials = [];
     const geometries = []; // New array for geometry files
@@ -85,14 +314,14 @@ function generateProjectStructure(gltf, componentName, displayMode = 'original')
             const safeMeshName = sanitizeName(meshName);
             const capitalizedMeshName = capitalize(safeMeshName);
             // Generate geometry file
-            const geometryFile = generateGeometryFile(capitalizedMeshName, geometry);
+            const geometryFile = generateGeometryFile(capitalizedMeshName, geometry, languageId);
             geometries.push({
                 name: capitalizedMeshName,
                 content: geometryFile,
                 originalName: meshName
             });
             // Generate mesh component (now simpler)
-            const meshComponent = generateMeshComponent(capitalizedMeshName, geometry, displayMode);
+            const meshComponent = generateMeshComponent(capitalizedMeshName, geometry, displayMode, languageId);
             meshes.push({
                 name: capitalizedMeshName,
                 content: meshComponent,
@@ -105,7 +334,7 @@ function generateProjectStructure(gltf, componentName, displayMode = 'original')
             const capitalizedMaterialName = capitalize(safeMaterialName);
             // Only add unique materials
             if (!materials.some((m)=>m.name === capitalizedMaterialName)) {
-                const materialComponent = generateMaterialComponent(capitalizedMaterialName, material, displayMode);
+                const materialComponent = generateMaterialComponent(capitalizedMaterialName, material, displayMode, languageId);
                 materials.push({
                     name: capitalizedMaterialName,
                     content: materialComponent,
@@ -117,9 +346,9 @@ function generateProjectStructure(gltf, componentName, displayMode = 'original')
     // Capitalize the component name for the main component
     const capitalizedComponentName = capitalize(componentName);
     // Generate the main index component
-    const indexContent = generateIndexComponent(capitalizedComponentName, meshes, materials, displayMode);
+    const indexContent = generateIndexComponent(capitalizedComponentName, meshes, materials, displayMode, languageId);
     // Generate the example page
-    const examplePageContent = generateExamplePage(capitalizedComponentName);
+    const examplePageContent = generateExamplePage(capitalizedComponentName, languageId);
     return {
         componentName: capitalizedComponentName,
         indexContent,
@@ -134,7 +363,8 @@ function generateProjectStructure(gltf, componentName, displayMode = 'original')
 /**
  * Generates a separate geometry file for Three.js
  * Creates a reusable geometry object that can be imported by components
- */ function generateGeometryFile(meshName, geometry) {
+ */ function generateGeometryFile(meshName, geometry, languageId) {
+    const lang = LANGUAGES[languageId];
     // Extract geometry data
     const positions = Array.from(geometry.attributes.position.array);
     const normals = geometry.attributes.normal ? Array.from(geometry.attributes.normal.array) : null;
@@ -142,13 +372,14 @@ function generateProjectStructure(gltf, componentName, displayMode = 'original')
     const indices = geometry.index ? Array.from(geometry.index.array) : null;
     // Check if geometry is too large for direct embedding
     const isLargeGeometry = positions.length > 100000;
-    return `import * as THREE from 'three';
-
+    switch(languageId){
+        case 'typescript':
+        case 'javascript':
+            return `import * as THREE from 'three';
 // ${meshName} geometry definition
 // This can be easily modified without affecting component code
 export const ${meshName}Geometry = (() => {
   const geometry = new THREE.BufferGeometry();
-  
   ${isLargeGeometry ? `// Large geometry detected - using optimized approach
     // For extremely large models, consider using binary data files
     const createGeometryChunk = (data, itemSize) => {
@@ -160,54 +391,236 @@ export const ${meshName}Geometry = (() => {
       }
       return chunks;
     };
-    
     // Position data
     const positionChunks = createGeometryChunk(${JSON.stringify(positions)}, 3);
     const positions = new Float32Array(positionChunks.reduce((acc, chunk) => [...acc, ...chunk], []));
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
     ${normals ? `// Normal data
     const normalChunks = createGeometryChunk(${JSON.stringify(normals)}, 3);
     const normals = new Float32Array(normalChunks.reduce((acc, chunk) => [...acc, ...chunk], []));
     geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));` : ''}
-    
     ${uvs ? `// UV data
     const uvChunks = createGeometryChunk(${JSON.stringify(uvs)}, 2);
     const uvs = new Float32Array(uvChunks.reduce((acc, chunk) => [...acc, ...chunk], []));
     geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));` : ''}
-    
     ${indices ? `// Index data
     const indexChunks = createGeometryChunk(${JSON.stringify(indices)}, 1);
     const indices = new Uint16Array(indexChunks.reduce((acc, chunk) => [...acc, ...chunk], []));
     geometry.setIndex(new THREE.BufferAttribute(indices, 1));` : ''}` : `// Position data
     const positions = new Float32Array(${JSON.stringify(positions)});
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    
     ${normals ? `// Normal data
     const normals = new Float32Array(${JSON.stringify(normals)});
     geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));` : ''}
-    
     ${uvs ? `// UV data
     const uvs = new Float32Array(${JSON.stringify(uvs)});
     geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));` : ''}
-    
     ${indices ? `// Index data
     const indices = new Uint16Array(${JSON.stringify(indices)});
     geometry.setIndex(new THREE.BufferAttribute(indices, 1));` : ''}`}
-  
   geometry.computeVertexNormals();
   return geometry;
 })();
 `;
+        case 'python':
+            return `import numpy as np
+from three import BufferGeometry, BufferAttribute
+
+# ${meshName} geometry definition
+# This can be easily modified without affecting component code
+${meshName}Geometry = (lambda: 
+    ${isLargeGeometry ? `# Large geometry detected - using optimized approach
+      # For extremely large models, consider using binary data files
+      def create_geometry_chunk(data, item_size):
+          chunk_size = 50000
+          chunks = []
+          for i in range(0, len(data), chunk_size):
+              chunk = data[i:i + chunk_size]
+              chunks.append(np.array(chunk, dtype=np.float32))
+          return np.concatenate(chunks)
+      
+      # Position data
+      position_chunks = create_geometry_chunk(${JSON.stringify(positions)}, 3)
+      positions = np.array(position_chunks, dtype=np.float32)
+      geometry = BufferGeometry()
+      geometry.set_attribute('position', BufferAttribute(positions, 3))
+      ${normals ? `# Normal data
+      normal_chunks = create_geometry_chunk(${JSON.stringify(normals)}, 3)
+      normals = np.array(normal_chunks, dtype=np.float32)
+      geometry.set_attribute('normal', BufferAttribute(normals, 3))` : ''}
+      ${uvs ? `# UV data
+      uv_chunks = create_geometry_chunk(${JSON.stringify(uvs)}, 2)
+      uvs = np.array(uv_chunks, dtype=np.float32)
+      geometry.set_attribute('uv', BufferAttribute(uvs, 2))` : ''}
+      ${indices ? `# Index data
+      index_chunks = create_geometry_chunk(${JSON.stringify(indices)}, 1)
+      indices = np.array(index_chunks, dtype=np.uint16)
+      geometry.set_index(BufferAttribute(indices, 1))` : ''}
+      geometry.compute_vertex_normals()
+      return geometry` : `# Position data
+      positions = np.array(${JSON.stringify(positions)}, dtype=np.float32)
+      geometry = BufferGeometry()
+      geometry.set_attribute('position', BufferAttribute(positions, 3))
+      ${normals ? `# Normal data
+      normals = np.array(${JSON.stringify(normals)}, dtype=np.float32)
+      geometry.set_attribute('normal', BufferAttribute(normals, 3))` : ''}
+      ${uvs ? `# UV data
+      uvs = np.array(${JSON.stringify(uvs)}, dtype=np.float32)
+      geometry.set_attribute('uv', BufferAttribute(uvs, 2))` : ''}
+      ${indices ? `# Index data
+      indices = np.array(${JSON.stringify(indices)}, dtype=np.uint16)
+      geometry.set_index(BufferAttribute(indices, 1))` : ''}
+      geometry.compute_vertex_normals()
+      return geometry`}
+)();
+`;
+        case 'java':
+            return `import three.BufferGeometry;
+import three.BufferAttribute;
+
+/**
+ * ${meshName} geometry definition
+ * This can be easily modified without affecting component code
+ */
+public class ${meshName}Geometry {
+    public static BufferGeometry create() {
+        BufferGeometry geometry = new BufferGeometry();
+        ${isLargeGeometry ? `// Large geometry detected - using optimized approach
+          // For extremely large models, consider using binary data files
+          float[] positions = createGeometryChunk(${JSON.stringify(positions)}, 3);
+          geometry.setAttribute("position", new BufferAttribute(positions, 3));
+          ${normals ? `float[] normals = createGeometryChunk(${JSON.stringify(normals)}, 3);
+          geometry.setAttribute("normal", new BufferAttribute(normals, 3));` : ''}
+          ${uvs ? `float[] uvs = createGeometryChunk(${JSON.stringify(uvs)}, 2);
+          geometry.setAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
+          ${indices ? `short[] indices = createGeometryChunk(${JSON.stringify(indices)}, 1);
+          geometry.setIndex(new BufferAttribute(indices, 1));` : ''}
+          geometry.computeVertexNormals();
+          return geometry;` : `float[] positions = ${JSON.stringify(positions)};
+          geometry.setAttribute("position", new BufferAttribute(positions, 3));
+          ${normals ? `float[] normals = ${JSON.stringify(normals)};
+          geometry.setAttribute("normal", new BufferAttribute(normals, 3));` : ''}
+          ${uvs ? `float[] uvs = ${JSON.stringify(uvs)};
+          geometry.setAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
+          ${indices ? `short[] indices = ${JSON.stringify(indices)};
+          geometry.setIndex(new BufferAttribute(indices, 1));` : ''}
+          geometry.computeVertexNormals();
+          return geometry;`}
+    }
+    
+    ${isLargeGeometry ? `private static float[] createGeometryChunk(float[] data, int itemSize) {
+        int chunkSize = 50000;
+        List<Float> chunks = new ArrayList<>();
+        for (int i = 0; i < data.length; i += chunkSize) {
+            int end = Math.min(i + chunkSize, data.length);
+            for (int j = i; j < end; j++) {
+                chunks.add(data[j]);
+            }
+        }
+        float[] result = new float[chunks.size()];
+        for (int i = 0; i < chunks.size(); i++) {
+            result[i] = chunks.get(i);
+        }
+        return result;
+    }` : ''}
+}
+`;
+        case 'csharp':
+            return `using ThreeJs;
+using System.Collections.Generic;
+using System.Linq;
+
+/**
+ * ${meshName} geometry definition
+ * This can be easily modified without affecting component code
+ */
+public class ${meshName}Geometry
+{
+    public static BufferGeometry Create()
+    {
+        var geometry = new BufferGeometry();
+        ${isLargeGeometry ? `// Large geometry detected - using optimized approach
+          // For extremely large models, consider using binary data files
+          var positions = CreateGeometryChunk(${JSON.stringify(positions)}, 3);
+          geometry.SetAttribute("position", new BufferAttribute(positions, 3));
+          ${normals ? `var normals = CreateGeometryChunk(${JSON.stringify(normals)}, 3);
+          geometry.SetAttribute("normal", new BufferAttribute(normals, 3));` : ''}
+          ${uvs ? `var uvs = CreateGeometryChunk(${JSON.stringify(uvs)}, 2);
+          geometry.SetAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
+          ${indices ? `var indices = CreateGeometryChunk(${JSON.stringify(indices)}, 1);
+          geometry.SetIndex(new BufferAttribute(indices, 1));` : ''}
+          geometry.ComputeVertexNormals();
+          return geometry;` : `var positions = new float[] { ${JSON.stringify(positions).slice(1, -1)} };
+          geometry.SetAttribute("position", new BufferAttribute(positions, 3));
+          ${normals ? `var normals = new float[] { ${JSON.stringify(normals).slice(1, -1)} };
+          geometry.SetAttribute("normal", new BufferAttribute(normals, 3));` : ''}
+          ${uvs ? `var uvs = new float[] { ${JSON.stringify(uvs).slice(1, -1)} };
+          geometry.SetAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
+          ${indices ? `var indices = new ushort[] { ${JSON.stringify(indices).slice(1, -1)} };
+          geometry.SetIndex(new BufferAttribute(indices, 1));` : ''}
+          geometry.ComputeVertexNormals();
+          return geometry;`}
+    }
+    
+    ${isLargeGeometry ? `private static float[] CreateGeometryChunk(float[] data, int itemSize)
+      {
+          int chunkSize = 50000;
+          var chunks = new List<float>();
+          for (int i = 0; i < data.Length; i += chunkSize)
+          {
+              int end = Math.Min(i + chunkSize, data.Length);
+              chunks.AddRange(data.Skip(i).Take(end - i));
+          }
+          return chunks.ToArray();
+      }` : ''}
+}
+`;
+        default:
+            // Fallback to TypeScript for unsupported languages
+            return `import * as THREE from 'three';
+// ${meshName} geometry definition
+// This can be easily modified without affecting component code
+export const ${meshName}Geometry = (() => {
+  const geometry = new THREE.BufferGeometry();
+  // Position data
+  const positions = new Float32Array(${JSON.stringify(positions)});
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  ${normals ? `// Normal data
+  const normals = new Float32Array(${JSON.stringify(normals)});
+  geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));` : ''}
+  ${uvs ? `// UV data
+  const uvs = new Float32Array(${JSON.stringify(uvs)});
+  geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));` : ''}
+  ${indices ? `// Index data
+  const indices = new Uint16Array(${JSON.stringify(indices)});
+  geometry.setIndex(new THREE.BufferAttribute(indices, 1));` : ''}
+  geometry.computeVertexNormals();
+  return geometry;
+})();
+`;
+    }
 }
 /**
  * Generates a mesh component that imports geometry from a separate file
  * Much simpler than before - just references the geometry
  * Component name starts with capital letter as required by React
- */ function generateMeshComponent(meshName, _geometry, displayMode) {
-    return `import React from 'react';
+ */ function generateMeshComponent(meshName, _geometry, displayMode, languageId) {
+    const lang = LANGUAGES[languageId];
+    switch(languageId){
+        case 'typescript':
+            return `import React from 'react';
 import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
-
+/**
+ * ${meshName} component
+ * Simple wrapper that uses pre-defined geometry
+ * Easy to modify without touching geometry data
+ */
+export default function ${meshName}(props: any) {
+  return <mesh geometry={${meshName}Geometry} {...props} />;
+}`;
+        case 'javascript':
+            return `import React from 'react';
+import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
 /**
  * ${meshName} component
  * Simple wrapper that uses pre-defined geometry
@@ -216,11 +629,81 @@ import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
 export default function ${meshName}(props) {
   return <mesh geometry={${meshName}Geometry} {...props} />;
 }`;
+        case 'python':
+            return `from react import createElement
+from .geometries.${meshName}Geometry import ${meshName}Geometry
+
+def ${meshName.toLowerCase()}(props):
+    """${meshName} component
+    Simple wrapper that uses pre-defined geometry
+    Easy to modify without touching geometry data
+    """
+    return createElement('mesh', {**props, 'geometry': ${meshName}Geometry})`;
+        case 'java':
+            return `import react.Component;
+import three.BufferGeometry;
+import three.Mesh;
+
+/**
+ * ${meshName} component
+ * Simple wrapper that uses pre-defined geometry
+ * Easy to modify without touching geometry data
+ */
+public class ${meshName} extends Component {
+    private BufferGeometry geometry;
+    
+    public ${meshName}(Object props) {
+        super(props);
+        this.geometry = ${meshName}Geometry.create();
+    }
+    
+    @Override
+    public Object render() {
+        return new Mesh(props, geometry);
+    }
+}`;
+        case 'csharp':
+            return `using React;
+using ThreeJs;
+
+/**
+ * ${meshName} component
+ * Simple wrapper that uses pre-defined geometry
+ * Easy to modify without touching geometry data
+ */
+public class ${meshName}
+{
+    private BufferGeometry Geometry { get; }
+    
+    public ${meshName}(object props)
+    {
+        Geometry = ${meshName}Geometry.Create();
+    }
+    
+    public object Render(object props)
+    {
+        return new Mesh(props, Geometry);
+    }
+}`;
+        default:
+            // Fallback to TypeScript for unsupported languages
+            return `import React from 'react';
+import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
+/**
+ * ${meshName} component
+ * Simple wrapper that uses pre-defined geometry
+ * Easy to modify without touching geometry data
+ */
+export default function ${meshName}(props) {
+  return <mesh geometry={${meshName}Geometry} {...props} />;
+}`;
+    }
 }
 /**
  * Generates a material component based on display mode
  * Component name starts with capital letter as required by React
- */ function generateMaterialComponent(materialName, material, displayMode) {
+ */ function generateMaterialComponent(materialName, material, displayMode, languageId) {
+    const lang = LANGUAGES[languageId];
     // Base material properties
     let materialType = 'MeshStandardMaterial';
     let properties = [];
@@ -274,8 +757,9 @@ export default function ${meshName}(props) {
             if ('shininess' in material) properties.push(`shininess: ${material.shininess}`);
             break;
     }
-    // Generate the component code
-    return `import * as THREE from 'three';
+    switch(languageId){
+        case 'typescript':
+            return `import * as THREE from 'three';
 /**
  * ${materialName} material
  * Reusable material definition
@@ -285,24 +769,96 @@ export default function ${materialName}() {
     ${properties.join(',\n    ')}
   });
 }`;
+        case 'javascript':
+            return `import * as THREE from 'three';
+/**
+ * ${materialName} material
+ * Reusable material definition
+ */
+export default function ${materialName}() {
+  return new THREE.${materialType}({
+    ${properties.join(',\n    ')}
+  });
+}`;
+        case 'python':
+            return `from three import ${materialType}
+
+def ${materialName.toLowerCase()}():
+    """${materialName} material
+    Reusable material definition
+    """
+    return ${materialType}(
+        ${properties.map((prop)=>prop.replace(': ', '= ')).join(',\n        ')}
+    )`;
+        case 'java':
+            return `import three.${materialType};
+
+/**
+ * ${materialName} material
+ * Reusable material definition
+ */
+public class ${materialName} {
+    public static ${materialType} create() {
+        return new ${materialType}(
+            ${properties.map((prop)=>{
+                const [key, value] = prop.split(': ');
+                return `${key} = ${value}`;
+            }).join(',\n            ')}
+        );
+    }
+}`;
+        case 'csharp':
+            return `using ThreeJs;
+
+/**
+ * ${materialName} material
+ * Reusable material definition
+ */
+public class ${materialName}
+{
+    public static ${materialType} Create()
+    {
+        return new ${materialType}
+        {
+            ${properties.map((prop)=>{
+                const [key, value] = prop.split(': ');
+                return key + " = " + value;
+            }).join(',\n            ')}
+        };
+    }
+}`;
+        default:
+            // Fallback to TypeScript for unsupported languages
+            return `import * as THREE from 'three';
+/**
+ * ${materialName} material
+ * Reusable material definition
+ */
+export default function ${materialName}() {
+  return new THREE.${materialType}({
+    ${properties.join(',\n    ')}
+  });
+}`;
+    }
 }
 /**
  * Generates the main index component that assembles all parts
  * Component name starts with capital letter as required by React
- */ function generateIndexComponent(componentName, meshes, materials, displayMode) {
+ */ function generateIndexComponent(componentName, meshes, materials, displayMode, languageId) {
+    const lang = LANGUAGES[languageId];
     // Generate imports
-    const meshImports = meshes.map((mesh)=>`import ${mesh.name} from './meshes/${mesh.name}';`).join('\n');
-    const materialImports = materials.map((material)=>`import ${material.name} from './materials/${material.name}';`).join('\n');
-    // Generate JSX structure
+    const meshImports = meshes.map((mesh)=>lang.import === 'import' ? `import ${mesh.name} from './meshes/${mesh.name}';` : lang.import === 'require' ? `const ${mesh.name} = require('./meshes/${mesh.name}');` : `${lang.import} '${mesh.name}' from './meshes/${mesh.name}';`).join('\n');
+    const materialImports = materials.map((material)=>lang.import === 'import' ? `import ${material.name} from './materials/${material.name}';` : lang.import === 'require' ? `const ${material.name} = require('./materials/${material.name}');` : `${lang.import} '${material.name}' from './materials/${material.name}';`).join('\n');
     const meshElements = meshes.map((mesh, i)=>{
         const material = materials[i % materials.length];
-        return `      <${mesh.name} material={${material.name}()} />`;
+        return lang.class === 'class' ? `      <${mesh.name} material={${material.name}.create()} />` : `      <${mesh.name} material={${material.name}()} />`;
     }).join('\n');
-    return `import React, { useRef } from 'react';
+    switch(languageId){
+        case 'typescript':
+            return `import React, { useRef } from 'react';
 import type { GroupProps } from '@react-three/fiber';
 ${meshImports}
 ${materialImports}
-
 /**
  * ${componentName} component
  * Main component that assembles all mesh and material parts
@@ -315,16 +871,121 @@ ${meshElements}
     </group>
   );
 }`;
+        case 'javascript':
+            return `import React, { useRef } from 'react';
+${meshImports}
+${materialImports}
+/**
+ * ${componentName} component
+ * Main component that assembles all mesh and material parts
+ */
+export default function ${componentName}(props) {
+  const ref = useRef();
+  return (
+    <group ref={ref} {...props}>
+${meshElements}
+    </group>
+  );
+}`;
+        case 'python':
+            return `from react import createElement, useRef
+from .meshes import ${meshes.map((m)=>m.name).join(', ')}
+from .materials import ${materials.map((m)=>m.name).join(', ')}
+
+def ${componentName.toLowerCase()}(props):
+    """${componentName} component
+    Main component that assembles all mesh and material parts
+    """
+    ref = useRef()
+    return createElement('group', {**props, 'ref': ref},
+        ${meshes.map((mesh, i)=>{
+                const material = materials[i % materials.length];
+                return `createElement(${mesh.name}, {'material': ${material.name}()})`;
+            }).join(',\n        ')})
+`;
+        case 'java':
+            return `import react.Component;
+import react.Ref;
+import three.Group;
+
+/**
+ * ${componentName} component
+ * Main component that assembles all mesh and material parts
+ */
+public class ${componentName} extends Component {
+    private Ref ref;
+    
+    public ${componentName}(Object props) {
+        super(props);
+        this.ref = useRef();
+    }
+    
+    @Override
+    public Object render() {
+        return new Group(ref, props,
+            ${meshes.map((mesh, i)=>{
+                const material = materials[i % materials.length];
+                return `new ${mesh.name}(new ${material.name}().create())`;
+            }).join(',\n            ')});
+    }
+}`;
+        case 'csharp':
+            return `using React;
+using ThreeJs;
+
+/**
+ * ${componentName} component
+ * Main component that assembles all mesh and material parts
+ */
+public class ${componentName}
+{
+    private Ref Ref { get; }
+    
+    public ${componentName}(object props)
+    {
+        Ref = useRef();
+    }
+    
+    public object Render(object props)
+    {
+        return new Group(Ref, props,
+            ${meshes.map((mesh, i)=>{
+                const material = materials[i % materials.length];
+                return `new ${mesh.name}(props, ${material.name}.Create())`;
+            }).join(",\n            ")});
+    }
+}`;
+        default:
+            // Fallback to TypeScript for unsupported languages
+            return `import React, { useRef } from 'react';
+import type { GroupProps } from '@react-three/fiber';
+${meshImports}
+${materialImports}
+/**
+ * ${componentName} component
+ * Main component that assembles all mesh and material parts
+ */
+export default function ${componentName}(props: GroupProps) {
+  const ref = useRef();
+  return (
+    <group ref={ref} {...props}>
+${meshElements}
+    </group>
+  );
+}`;
+    }
 }
 /**
  * Generates a complete example page showing how to use the component
  * Component name starts with capital letter as required by React
- */ function generateExamplePage(componentName) {
-    return `import React from 'react';
+ */ function generateExamplePage(componentName, languageId) {
+    const lang = LANGUAGES[languageId];
+    switch(languageId){
+        case 'typescript':
+            return `import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import ${componentName} from '@/components/${componentName}';
-
 /**
  * Example page demonstrating how to use the ${componentName} component
  */
@@ -354,6 +1015,184 @@ export default function ${componentName}Page() {
     </div>
   );
 }`;
+        case 'javascript':
+            return `import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment } from '@react-three/drei';
+import ${componentName} from '@/components/${componentName}';
+/**
+ * Example page demonstrating how to use the ${componentName} component
+ */
+export default function ${componentName}Page() {
+  return (
+    <div className="w-full h-screen">
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 50 }}
+        gl={{ 
+          powerPreference: "high-performance",
+          antialias: true,
+          alpha: true
+        }}
+      >
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} />
+        <${componentName} />
+        <OrbitControls 
+          enableZoom 
+          enablePan 
+          enableRotate 
+          minDistance={0.1}
+          maxDistance={100}
+        />
+        <Environment preset="studio" />
+      </Canvas>
+    </div>
+  );
+}`;
+        case 'python':
+            return `from react import createElement
+from three import Canvas, ambientLight, pointLight, Environment
+from three.drei import OrbitControls
+from components.${componentName.toLowerCase()} import ${componentName}
+
+def ${componentName}Page(props):
+    """Example page demonstrating how to use the ${componentName} component"""
+    return createElement('div', {'className': 'w-full h-screen'},
+        createElement(Canvas, {
+            'camera': {'position': [0, 0, 5], 'fov': 50},
+            'gl': {
+                'powerPreference': "high-performance",
+                'antialias': True,
+                'alpha': True
+            }
+        },
+            ambientLight({'intensity': 0.5}),
+            pointLight({'position': [10, 10, 10]}),
+            ${componentName}(),
+            OrbitControls({
+                'enableZoom': True,
+                'enablePan': True,
+                'enableRotate': True,
+                'minDistance': 0.1,
+                'maxDistance': 100
+            }),
+            Environment({'preset': "studio"})
+        )
+    )`;
+        case 'java':
+            return `import react.Component;
+import three.Canvas;
+import three.ambientLight;
+import three.pointLight;
+import three.Environment;
+import drei.OrbitControls;
+import components.${componentName}.${componentName};
+
+/**
+ * Example page demonstrating how to use the ${componentName} component
+ */
+public class ${componentName}Page extends Component {
+    @Override
+    public Object render() {
+        return new div(
+            new Canvas(
+                new Canvas.Properties()
+                    .camera(new CameraProperties().position(new float[]{0, 0, 5}).fov(50))
+                    .gl(new GLProperties()
+                        .powerPreference("high-performance")
+                        .antialias(true)
+                        .alpha(true)),
+                new ambientLight(new LightProperties().intensity(0.5)),
+                new pointLight(new LightProperties().position(new float[]{10, 10, 10})),
+                new ${componentName}(),
+                new OrbitControls(new OrbitControls.Properties()
+                    .enableZoom(true)
+                    .enablePan(true)
+                    .enableRotate(true)
+                    .minDistance(0.1f)
+                    .maxDistance(100f)),
+                new Environment(new Environment.Properties().preset("studio"))
+            )
+        );
+    }
+}`;
+        case 'csharp':
+            return `using React;
+using ThreeJs;
+using Drei;
+
+/**
+ * Example page demonstrating how to use the ${componentName} component
+ */
+public class ${componentName}Page
+{
+    public object Render()
+    {
+        return new div(new {
+            ClassName = "w-full h-screen"
+        },
+            new Canvas(new {
+                Camera = new {
+                    Position = new[] { 0f, 0f, 5f },
+                    Fov = 50f
+                },
+                Gl = new {
+                    PowerPreference = "high-performance",
+                    Antialias = true,
+                    Alpha = true
+                }
+            },
+                new ambientLight(new { Intensity = 0.5f }),
+                new pointLight(new { Position = new[] { 10f, 10f, 10f } }),
+                new ${componentName}(),
+                new OrbitControls(new {
+                    EnableZoom = true,
+                    EnablePan = true,
+                    EnableRotate = true,
+                    MinDistance = 0.1f,
+                    MaxDistance = 100f
+                }),
+                new Environment(new { Preset = "studio" })
+            )
+        );
+    }
+}`;
+        default:
+            // Fallback to TypeScript for unsupported languages
+            return `import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment } from '@react-three/drei';
+import ${componentName} from '@/components/${componentName}';
+/**
+ * Example page demonstrating how to use the ${componentName} component
+ */
+export default function ${componentName}Page() {
+  return (
+    <div className="w-full h-screen">
+      <Canvas 
+        camera={{ position: [0, 0, 5], fov: 50 }}
+        gl={{ 
+          powerPreference: "high-performance",
+          antialias: true,
+          alpha: true
+        }}
+      >
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} />
+        <${componentName} />
+        <OrbitControls 
+          enableZoom 
+          enablePan 
+          enableRotate 
+          minDistance={0.1}
+          maxDistance={100}
+        />
+        <Environment preset="studio" />
+      </Canvas>
+    </div>
+  );
+}`;
+    }
 }
 /**
  * Sanitizes names to be valid JavaScript identifiers
@@ -389,6 +1228,7 @@ __turbopack_context__.s({
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$build$2f$three$2e$core$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/three/build/three.core.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$three$2f$fiber$2f$dist$2f$react$2d$three$2d$fiber$2e$esm$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@react-three/fiber/dist/react-three-fiber.esm.js [app-ssr] (ecmascript) <locals>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$three$2f$fiber$2f$dist$2f$events$2d$e3cb66e2$2e$esm$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__D__as__useFrame$3e$__ = __turbopack_context__.i("[project]/node_modules/@react-three/fiber/dist/events-e3cb66e2.esm.js [app-ssr] (ecmascript) <export D as useFrame>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$three$2f$drei$2f$core$2f$OrbitControls$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@react-three/drei/core/OrbitControls.js [app-ssr] (ecmascript)");
@@ -404,10 +1244,10 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$re
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/file-text.js [app-ssr] (ecmascript) <export default as FileText>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$folder$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Folder$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/folder.js [app-ssr] (ecmascript) <export default as Folder>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$panels$2d$top$2d$left$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Layout$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/panels-top-left.js [app-ssr] (ecmascript) <export default as Layout>");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$build$2f$three$2e$core$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/three/build/three.core.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$examples$2f$jsm$2f$loaders$2f$GLTFLoader$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/three/examples/jsm/loaders/GLTFLoader.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$languages$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Languages$3e$__ = __turbopack_context__.i("[project]/node_modules/lucide-react/dist/esm/icons/languages.js [app-ssr] (ecmascript) <export default as Languages>");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$examples$2f$jsm$2f$loaders$2f$DRACOLoader$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/three/examples/jsm/loaders/DRACOLoader.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jszip$2f$lib$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/jszip/lib/index.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$examples$2f$jsm$2f$loaders$2f$GLTFLoader$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/three/examples/jsm/loaders/GLTFLoader.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$file$2d$saver$2f$dist$2f$FileSaver$2e$min$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/file-saver/dist/FileSaver.min.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$converter$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/app/lib/glb-converter.ts [app-ssr] (ecmascript)");
 "use client";
@@ -422,6 +1262,326 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$convert
 ;
 ;
 ;
+// Language configuration for syntax highlighting and code generation
+const LANGUAGES = [
+    {
+        id: 'typescript',
+        name: 'TypeScript',
+        extension: 'tsx',
+        geometryExtension: 'ts',
+        group: 'Web'
+    },
+    {
+        id: 'javascript',
+        name: 'JavaScript',
+        extension: 'jsx',
+        geometryExtension: 'js',
+        group: 'Web'
+    },
+    {
+        id: 'python',
+        name: 'Python',
+        extension: 'py',
+        geometryExtension: 'py',
+        group: 'General'
+    },
+    {
+        id: 'java',
+        name: 'Java',
+        extension: 'java',
+        geometryExtension: 'java',
+        group: 'General'
+    },
+    {
+        id: 'csharp',
+        name: 'C#',
+        extension: 'cs',
+        geometryExtension: 'cs',
+        group: 'General'
+    },
+    {
+        id: 'cpp',
+        name: 'C++',
+        extension: 'cpp',
+        geometryExtension: 'h',
+        group: 'Systems'
+    },
+    {
+        id: 'go',
+        name: 'Go',
+        extension: 'go',
+        geometryExtension: 'go',
+        group: 'Systems'
+    },
+    {
+        id: 'rust',
+        name: 'Rust',
+        extension: 'rs',
+        geometryExtension: 'rs',
+        group: 'Systems'
+    },
+    {
+        id: 'swift',
+        name: 'Swift',
+        extension: 'swift',
+        geometryExtension: 'swift',
+        group: 'Mobile'
+    },
+    {
+        id: 'kotlin',
+        name: 'Kotlin',
+        extension: 'kt',
+        geometryExtension: 'kt',
+        group: 'Mobile'
+    },
+    {
+        id: 'ruby',
+        name: 'Ruby',
+        extension: 'rb',
+        geometryExtension: 'rb',
+        group: 'Web'
+    },
+    {
+        id: 'php',
+        name: 'PHP',
+        extension: 'php',
+        geometryExtension: 'php',
+        group: 'Web'
+    },
+    {
+        id: 'scala',
+        name: 'Scala',
+        extension: 'scala',
+        geometryExtension: 'scala',
+        group: 'General'
+    },
+    {
+        id: 'dart',
+        name: 'Dart',
+        extension: 'dart',
+        geometryExtension: 'dart',
+        group: 'Mobile'
+    },
+    {
+        id: 'r',
+        name: 'R',
+        extension: 'R',
+        geometryExtension: 'R',
+        group: 'Data Science'
+    }
+];
+// VS Code-like editor component with syntax highlighting
+function CodeEditor({ code, languageId }) {
+    const language = LANGUAGES.find((lang)=>lang.id === languageId);
+    const lines = code.split('\n');
+    const getSyntaxClass = (line, index)=>{
+        if (line.trim().startsWith('//') || line.trim().startsWith('#')) {
+            return 'text-[#6A9955]'; // Comments
+        }
+        if (line.includes('import') || line.includes('from') || line.includes('require')) {
+            return 'text-[#C586C0]'; // Imports
+        }
+        if (line.includes('function') || line.includes('def') || line.includes('class')) {
+            return 'text-[#569CD6]'; // Keywords
+        }
+        if (line.includes('const') || line.includes('let') || line.includes('var') || line.includes('final') || line.includes('static') || line.includes('public')) {
+            return 'text-[#9CDCFE]'; // Variables
+        }
+        if (line.includes('{') || line.includes('}') || line.includes('[') || line.includes(']') || line.includes('(') || line.includes(')')) {
+            return 'text-[#D4D4D4]'; // Brackets
+        }
+        if (line.includes('=') || line.includes('+') || line.includes('-') || line.includes('*') || line.includes('/') || line.includes('%')) {
+            return 'text-[#D4D4D4]'; // Operators
+        }
+        if (line.includes('"') || line.includes("'") || line.includes('`')) {
+            return 'text-[#CE9178]'; // Strings
+        }
+        if (!isNaN(Number(line.trim())) || line.trim().match(/0x[0-9A-Fa-f]+/)) {
+            return 'text-[#B5CEA8]'; // Numbers
+        }
+        return 'text-[#D4D4D4]'; // Default
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "bg-[#1E1E1E] rounded-lg overflow-hidden font-mono text-sm h-full flex flex-col",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "bg-[#3C3C3C] px-4 py-2 flex items-center justify-between border-b border-[#333333]",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-center gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "w-3 h-3 rounded-full bg-[#FF5F56]"
+                            }, void 0, false, {
+                                fileName: "[project]/app/glb-convertor/page.tsx",
+                                lineNumber: 75,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "w-3 h-3 rounded-full bg-[#FFBD2E]"
+                            }, void 0, false, {
+                                fileName: "[project]/app/glb-convertor/page.tsx",
+                                lineNumber: 76,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "w-3 h-3 rounded-full bg-[#27C93F]"
+                            }, void 0, false, {
+                                fileName: "[project]/app/glb-convertor/page.tsx",
+                                lineNumber: 77,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/glb-convertor/page.tsx",
+                        lineNumber: 74,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "text-[#CCCCCC] text-xs flex items-center gap-2",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                children: language?.name
+                            }, void 0, false, {
+                                fileName: "[project]/app/glb-convertor/page.tsx",
+                                lineNumber: 80,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-[#858585]",
+                                children: "•"
+                            }, void 0, false, {
+                                fileName: "[project]/app/glb-convertor/page.tsx",
+                                lineNumber: 81,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-[#858585]",
+                                children: [
+                                    lines.length,
+                                    " lines"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/glb-convertor/page.tsx",
+                                lineNumber: 82,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/app/glb-convertor/page.tsx",
+                        lineNumber: 79,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/app/glb-convertor/page.tsx",
+                lineNumber: 73,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex-1 overflow-auto p-4",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "text-[#858585] w-8 select-none flex-shrink-0 pr-4 text-right",
+                            children: lines.map((_, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "select-none",
+                                    children: i + 1
+                                }, i, false, {
+                                    fileName: "[project]/app/glb-convertor/page.tsx",
+                                    lineNumber: 89,
+                                    columnNumber: 15
+                                }, this))
+                        }, void 0, false, {
+                            fileName: "[project]/app/glb-convertor/page.tsx",
+                            lineNumber: 87,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex-1 min-w-0",
+                            children: lines.map((line, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: `whitespace-pre ${getSyntaxClass(line, i)}`,
+                                    children: line
+                                }, i, false, {
+                                    fileName: "[project]/app/glb-convertor/page.tsx",
+                                    lineNumber: 94,
+                                    columnNumber: 15
+                                }, this))
+                        }, void 0, false, {
+                            fileName: "[project]/app/glb-convertor/page.tsx",
+                            lineNumber: 92,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/glb-convertor/page.tsx",
+                    lineNumber: 86,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/app/glb-convertor/page.tsx",
+                lineNumber: 85,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/app/glb-convertor/page.tsx",
+        lineNumber: 72,
+        columnNumber: 5
+    }, this);
+}
+// Language selector component with grouping
+function LanguageSelector({ selectedLanguage, onChange }) {
+    const groups = Array.from(new Set(LANGUAGES.map((lang)=>lang.group)));
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "relative",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center gap-2",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$languages$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Languages$3e$__["Languages"], {
+                    className: "w-4 h-4 text-purple-400"
+                }, void 0, false, {
+                    fileName: "[project]/app/glb-convertor/page.tsx",
+                    lineNumber: 118,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                    value: selectedLanguage,
+                    onChange: (e)=>onChange(e.target.value),
+                    className: "bg-slate-700 text-white px-3 py-1.5 rounded border border-slate-600 focus:border-purple-500 outline-none text-sm appearance-none pr-8 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22%239CA3AF%22><path d=%22M7 10l5 5 5-5z%22/></svg>')] bg-no-repeat bg-[right_0.5rem_center] bg-[length:1rem] cursor-pointer",
+                    children: groups.map((group)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("optgroup", {
+                            label: group,
+                            children: LANGUAGES.filter((lang)=>lang.group === group).map((lang)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                    value: lang.id,
+                                    children: lang.name
+                                }, lang.id, false, {
+                                    fileName: "[project]/app/glb-convertor/page.tsx",
+                                    lineNumber: 127,
+                                    columnNumber: 17
+                                }, this))
+                        }, group, false, {
+                            fileName: "[project]/app/glb-convertor/page.tsx",
+                            lineNumber: 125,
+                            columnNumber: 13
+                        }, this))
+                }, void 0, false, {
+                    fileName: "[project]/app/glb-convertor/page.tsx",
+                    lineNumber: 119,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/app/glb-convertor/page.tsx",
+            lineNumber: 117,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/app/glb-convertor/page.tsx",
+        lineNumber: 116,
+        columnNumber: 5
+    }, this);
+}
 function GLBConverter() {
     const [file, setFile] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [modelUrl, setModelUrl] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
@@ -438,7 +1598,7 @@ function GLBConverter() {
     const [showGrid, setShowGrid] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [showAxes, setShowAxes] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [componentName, setComponentName] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('Model');
-    const [selectedLanguage, setSelectedLanguage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('transpiled-tsx');
+    const [selectedLanguage, setSelectedLanguage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('typescript');
     const handleFileUpload = async (event)=>{
         const uploadedFile = event.target.files?.[0];
         if (uploadedFile && uploadedFile.name.endsWith('.glb')) {
@@ -458,7 +1618,7 @@ function GLBConverter() {
                 setComponentName(capitalizedName);
                 setActiveTab('preview');
             } catch (err) {
-                console.error("Error loading GLTF ", err);
+                console.error("Error loading GLTF", err);
                 setError('Error processing GLB file. The file may be too large or corrupted.');
             } finally{
                 setIsLoading(false);
@@ -475,8 +1635,6 @@ function GLBConverter() {
                 // Set up DRACO decoder for compressed models (common in large GLBs)
                 const dracoLoader = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$examples$2f$jsm$2f$loaders$2f$DRACOLoader$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DRACOLoader"]();
                 dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
-                const loader = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$examples$2f$jsm$2f$loaders$2f$GLTFLoader$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["GLTFLoader"]();
-                loader.setDRACOLoader(dracoLoader);
                 // Track progress for large files
                 const xhr = new XMLHttpRequest();
                 xhr.open('GET', url, true);
@@ -485,11 +1643,13 @@ function GLBConverter() {
                     if (xhr.status === 200) {
                         try {
                             // Process the GLB data
+                            const loader = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$three$2f$examples$2f$jsm$2f$loaders$2f$GLTFLoader$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["GLTFLoader"]();
+                            loader.setDRACOLoader(dracoLoader);
                             loader.parse(xhr.response, '', (gltf)=>{
                                 // Store GLTF data for transpilation
                                 setGltfData(gltf);
                                 // Generate project structure
-                                const structure = (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$converter$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["generateProjectStructure"])(gltf, componentName, displayMode);
+                                const structure = (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$converter$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["generateProjectStructure"])(gltf, componentName, displayMode, selectedLanguage);
                                 setProjectStructure(structure);
                                 setIsProcessing(false);
                                 resolve();
@@ -523,42 +1683,70 @@ function GLBConverter() {
             }
         });
     };
+    // Add this useEffect hook to regenerate code when language changes
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        if (gltfData && componentName && activeTab === 'code') {
+            setIsProcessing(true);
+            setProgress(0);
+            try {
+                console.log(`Regenerating project structure for ${selectedLanguage}...`);
+                // Generate project structure with current settings
+                const structure = (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$converter$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["generateProjectStructure"])(gltfData, componentName, displayMode, selectedLanguage);
+                setProjectStructure(structure);
+                setProgress(100);
+                console.log("Project structure regenerated successfully");
+            } catch (err) {
+                console.error("Error regenerating project structure", err);
+                setError('Failed to regenerate project structure for the selected language');
+            } finally{
+                setIsProcessing(false);
+            }
+        }
+    }, [
+        selectedLanguage,
+        gltfData,
+        componentName,
+        displayMode,
+        activeTab
+    ]);
     const downloadZip = (includeExamplePage = false)=>{
         if (!projectStructure) return;
         setIsProcessing(true);
         try {
             const zip = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jszip$2f$lib$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"]();
+            const lang = LANGUAGES.find((l)=>l.id === selectedLanguage);
+            if (!lang) return;
             // Create folder structure
             const componentFolder = zip.folder(`components/${componentName}`);
             const meshesFolder = componentFolder?.folder('meshes');
             const geometriesFolder = componentFolder?.folder('geometries');
             const materialsFolder = componentFolder?.folder('materials');
             // Add index file
-            componentFolder?.file('index.tsx', projectStructure.indexContent);
+            componentFolder?.file(`index.${lang.extension}`, projectStructure.indexContent);
             // Add geometry files
             projectStructure.geometries?.forEach((geometry)=>{
-                geometriesFolder?.file(`${geometry.name}Geometry.ts`, geometry.content);
+                geometriesFolder?.file(`${geometry.name}Geometry.${lang.geometryExtension}`, geometry.content);
             });
             // Add mesh files
             projectStructure.meshes.forEach((mesh)=>{
-                meshesFolder?.file(`${mesh.name}.tsx`, mesh.content);
+                meshesFolder?.file(`${mesh.name}.${lang.extension}`, mesh.content);
             });
             // Add material files
             projectStructure.materials.forEach((material)=>{
-                materialsFolder?.file(`${material.name}.tsx`, material.content);
+                materialsFolder?.file(`${material.name}.${lang.extension}`, material.content);
             });
             // Add example page if requested
             if (includeExamplePage) {
                 const appFolder = zip.folder('app');
                 const modelPageFolder = appFolder?.folder(`${componentName.toLowerCase()}-page`);
-                modelPageFolder?.file('page.tsx', projectStructure.examplePageContent);
+                modelPageFolder?.file(`page.${lang.extension}`, projectStructure.examplePageContent);
             }
             // Generate and download zip
             zip.generateAsync({
                 type: 'blob'
             }).then((content)=>{
                 const suffix = includeExamplePage ? '-with-example' : '';
-                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$file$2d$saver$2f$dist$2f$FileSaver$2e$min$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(content, `${componentName}${suffix}.zip`);
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$file$2d$saver$2f$dist$2f$FileSaver$2e$min$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(content, `${componentName}-${selectedLanguage}${suffix}.zip`);
             });
         } catch (err) {
             console.error("Error generating ZIP", err);
@@ -572,36 +1760,38 @@ function GLBConverter() {
         setIsProcessing(true);
         try {
             // Generate project structure with current display mode
-            const structure = (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$converter$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["generateProjectStructure"])(gltfData, componentName, displayMode);
+            const structure = (0, __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$lib$2f$glb$2d$converter$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["generateProjectStructure"])(gltfData, componentName, displayMode, selectedLanguage);
             const zip = new __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$jszip$2f$lib$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"]();
+            const lang = LANGUAGES.find((l)=>l.id === selectedLanguage);
+            if (!lang) return;
             // Create folder structure
             const componentFolder = zip.folder(`components/${componentName}-${displayMode}`);
             const meshesFolder = componentFolder?.folder('meshes');
             const geometriesFolder = componentFolder?.folder('geometries');
             const materialsFolder = componentFolder?.folder('materials');
             // Add index file
-            componentFolder?.file('index.tsx', structure.indexContent);
+            componentFolder?.file(`index.${lang.extension}`, structure.indexContent);
             // Add geometry files
             structure.geometries?.forEach((geometry)=>{
-                geometriesFolder?.file(`${geometry.name}Geometry.ts`, geometry.content);
+                geometriesFolder?.file(`${geometry.name}Geometry.${lang.geometryExtension}`, geometry.content);
             });
             // Add mesh files
             structure.meshes.forEach((mesh)=>{
-                meshesFolder?.file(`${mesh.name}.tsx`, mesh.content);
+                meshesFolder?.file(`${mesh.name}.${lang.extension}`, mesh.content);
             });
             // Add material files
             structure.materials.forEach((material)=>{
-                materialsFolder?.file(`${material.name}.tsx`, material.content);
+                materialsFolder?.file(`${material.name}.${lang.extension}`, material.content);
             });
             // Add example page
             const appFolder = zip.folder('app');
             const modelPageFolder = appFolder?.folder(`${componentName.toLowerCase()}-${displayMode}-page`);
-            modelPageFolder?.file('page.tsx', structure.examplePageContent);
+            modelPageFolder?.file(`page.${lang.extension}`, structure.examplePageContent);
             // Generate and download zip
             zip.generateAsync({
                 type: 'blob'
             }).then((content)=>{
-                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$file$2d$saver$2f$dist$2f$FileSaver$2e$min$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(content, `${componentName}-${displayMode}.zip`);
+                (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$file$2d$saver$2f$dist$2f$FileSaver$2e$min$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(content, `${componentName}-${displayMode}-${selectedLanguage}.zip`);
             });
         } catch (err) {
             console.error("Error generating ZIP for current view", err);
@@ -622,7 +1812,7 @@ function GLBConverter() {
         URL.revokeObjectURL(url);
     };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900",
+        className: "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-slate-100",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "container mx-auto px-4 py-8",
             children: [
@@ -630,25 +1820,34 @@ function GLBConverter() {
                     className: "text-center mb-8",
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                            className: "text-4xl font-bold text-white mb-4",
-                            children: "GLB to Mesh Converter"
-                        }, void 0, false, {
+                            className: "text-4xl font-bold text-white mb-4 flex items-center justify-center gap-3",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$code$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Code$3e$__["Code"], {
+                                    className: "w-10 h-10 text-purple-400"
+                                }, void 0, false, {
+                                    fileName: "[project]/app/glb-convertor/page.tsx",
+                                    lineNumber: 395,
+                                    columnNumber: 13
+                                }, this),
+                                "GLB to Code Converter"
+                            ]
+                        }, void 0, true, {
                             fileName: "[project]/app/glb-convertor/page.tsx",
-                            lineNumber: 238,
+                            lineNumber: 394,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                            className: "text-slate-300 max-w-2xl mx-auto",
-                            children: "Convert your GLB 3D models into self-contained mesh components with separate geometry blocks for easier maintenance. Handles large files efficiently with progress tracking and memory optimization."
+                            className: "text-slate-300 max-w-3xl mx-auto text-lg",
+                            children: "Convert your GLB 3D models into self-contained components in 15+ programming languages with separate geometry blocks for easier maintenance. Handles large files efficiently with progress tracking and memory optimization."
                         }, void 0, false, {
                             fileName: "[project]/app/glb-convertor/page.tsx",
-                            lineNumber: 241,
+                            lineNumber: 398,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/glb-convertor/page.tsx",
-                    lineNumber: 237,
+                    lineNumber: 393,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -658,69 +1857,69 @@ function GLBConverter() {
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 onClick: ()=>setActiveTab('upload'),
-                                className: `px-6 py-2 rounded-md font-medium transition-all ${activeTab === 'upload' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`,
+                                className: `px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${activeTab === 'upload' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`,
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
-                                        className: "w-4 h-4 inline mr-2"
+                                        className: "w-4 h-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 258,
+                                        lineNumber: 415,
                                         columnNumber: 15
                                     }, this),
                                     "Upload"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 250,
+                                lineNumber: 407,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 onClick: ()=>setActiveTab('preview'),
                                 disabled: !file,
-                                className: `px-6 py-2 rounded-md font-medium transition-all ${activeTab === 'preview' && file ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'}`,
+                                className: `px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${activeTab === 'preview' && file ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'}`,
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
-                                        className: "w-4 h-4 inline mr-2"
+                                        className: "w-4 h-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 270,
+                                        lineNumber: 427,
                                         columnNumber: 15
                                     }, this),
                                     "Preview"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 261,
+                                lineNumber: 418,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                 onClick: ()=>setActiveTab('code'),
                                 disabled: !projectStructure,
-                                className: `px-6 py-2 rounded-md font-medium transition-all ${activeTab === 'code' && projectStructure ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'}`,
+                                className: `px-6 py-2 rounded-md font-medium transition-all flex items-center gap-2 ${activeTab === 'code' && projectStructure ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed'}`,
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$code$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Code$3e$__["Code"], {
-                                        className: "w-4 h-4 inline mr-2"
+                                        className: "w-4 h-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 282,
+                                        lineNumber: 439,
                                         columnNumber: 15
                                     }, this),
                                     "Code"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 273,
+                                lineNumber: 430,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/glb-convertor/page.tsx",
-                        lineNumber: 249,
+                        lineNumber: 406,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/glb-convertor/page.tsx",
-                    lineNumber: 248,
+                    lineNumber: 405,
                     columnNumber: 9
                 }, this),
                 error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -732,7 +1931,7 @@ function GLBConverter() {
                                 className: "w-5 h-5 text-red-400 mr-2"
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 292,
+                                lineNumber: 449,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -740,18 +1939,18 @@ function GLBConverter() {
                                 children: error
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 293,
+                                lineNumber: 450,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/glb-convertor/page.tsx",
-                        lineNumber: 291,
+                        lineNumber: 448,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/glb-convertor/page.tsx",
-                    lineNumber: 290,
+                    lineNumber: 447,
                     columnNumber: 11
                 }, this),
                 activeTab === 'upload' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -768,7 +1967,7 @@ function GLBConverter() {
                                             className: "w-12 h-12 text-slate-400 mx-auto mb-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 304,
+                                            lineNumber: 461,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -776,7 +1975,7 @@ function GLBConverter() {
                                             children: "Upload your GLB model"
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 305,
+                                            lineNumber: 462,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -784,7 +1983,7 @@ function GLBConverter() {
                                             children: "Drop your .glb file here or click to browse"
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 308,
+                                            lineNumber: 465,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -796,7 +1995,7 @@ function GLBConverter() {
                                             disabled: isLoading
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 311,
+                                            lineNumber: 468,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -808,7 +2007,7 @@ function GLBConverter() {
                                                         className: "w-4 h-4 inline mr-2 animate-spin"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 327,
+                                                        lineNumber: 484,
                                                         columnNumber: 25
                                                     }, this),
                                                     "Processing..."
@@ -816,18 +2015,18 @@ function GLBConverter() {
                                             }, void 0, true) : 'Choose File'
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 319,
+                                            lineNumber: 476,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                    lineNumber: 303,
+                                    lineNumber: 460,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 302,
+                                lineNumber: 459,
                                 columnNumber: 15
                             }, this),
                             (isLoading || isProcessing) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -841,7 +2040,7 @@ function GLBConverter() {
                                                 children: isProcessing ? 'Processing model...' : 'Loading file...'
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 341,
+                                                lineNumber: 498,
                                                 columnNumber: 21
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -852,13 +2051,13 @@ function GLBConverter() {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 344,
+                                                lineNumber: 501,
                                                 columnNumber: 21
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 340,
+                                        lineNumber: 497,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -870,12 +2069,12 @@ function GLBConverter() {
                                             }
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 347,
+                                            lineNumber: 504,
                                             columnNumber: 21
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 346,
+                                        lineNumber: 503,
                                         columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -883,24 +2082,24 @@ function GLBConverter() {
                                         children: progress < 100 ? "Loading large model. This may take a few moments..." : "Optimizing model data for transpilation..."
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 352,
+                                        lineNumber: 509,
                                         columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 339,
+                                lineNumber: 496,
                                 columnNumber: 17
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/glb-convertor/page.tsx",
-                        lineNumber: 301,
+                        lineNumber: 458,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/glb-convertor/page.tsx",
-                    lineNumber: 300,
+                    lineNumber: 457,
                     columnNumber: 11
                 }, this),
                 activeTab === 'preview' && modelUrl && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -916,7 +2115,7 @@ function GLBConverter() {
                                         children: "3D Model Preview"
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 368,
+                                        lineNumber: 525,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -930,7 +2129,7 @@ function GLBConverter() {
                                                         children: "Display Mode:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 372,
+                                                        lineNumber: 529,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -943,7 +2142,7 @@ function GLBConverter() {
                                                                 children: "Original"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 378,
+                                                                lineNumber: 535,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -951,7 +2150,7 @@ function GLBConverter() {
                                                                 children: "Wireframe"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 379,
+                                                                lineNumber: 536,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -959,7 +2158,7 @@ function GLBConverter() {
                                                                 children: "Solid Color"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 380,
+                                                                lineNumber: 537,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -967,7 +2166,7 @@ function GLBConverter() {
                                                                 children: "Normals"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 381,
+                                                                lineNumber: 538,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -975,7 +2174,7 @@ function GLBConverter() {
                                                                 children: "Depth"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 382,
+                                                                lineNumber: 539,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -983,19 +2182,19 @@ function GLBConverter() {
                                                                 children: "Point Cloud"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 383,
+                                                                lineNumber: 540,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 373,
+                                                        lineNumber: 530,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 371,
+                                                lineNumber: 528,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1011,14 +2210,14 @@ function GLBConverter() {
                                                                 className: "rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 390,
+                                                                lineNumber: 547,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Auto Rotate"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 389,
+                                                        lineNumber: 546,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1031,14 +2230,14 @@ function GLBConverter() {
                                                                 className: "rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 399,
+                                                                lineNumber: 556,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Grid"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 398,
+                                                        lineNumber: 555,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -1051,20 +2250,20 @@ function GLBConverter() {
                                                                 className: "rounded border-slate-600 bg-slate-700 text-purple-600 focus:ring-purple-500"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 408,
+                                                                lineNumber: 565,
                                                                 columnNumber: 23
                                                             }, this),
                                                             "Axes"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 407,
+                                                        lineNumber: 564,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 388,
+                                                lineNumber: 545,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1077,7 +2276,7 @@ function GLBConverter() {
                                                             className: "w-4 h-4 animate-spin"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 427,
+                                                            lineNumber: 584,
                                                             columnNumber: 25
                                                         }, this),
                                                         "Processing..."
@@ -1088,7 +2287,7 @@ function GLBConverter() {
                                                             className: "w-4 h-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 432,
+                                                            lineNumber: 589,
                                                             columnNumber: 25
                                                         }, this),
                                                         "Download ",
@@ -1098,19 +2297,19 @@ function GLBConverter() {
                                                 }, void 0, true)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 418,
+                                                lineNumber: 575,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 369,
+                                        lineNumber: 526,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 367,
+                                lineNumber: 524,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1129,17 +2328,17 @@ function GLBConverter() {
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 443,
+                                        lineNumber: 600,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                    lineNumber: 442,
+                                    lineNumber: 599,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 441,
+                                lineNumber: 598,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1166,7 +2365,7 @@ function GLBConverter() {
                                             intensity: 0.5
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 463,
+                                            lineNumber: 620,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pointLight", {
@@ -1177,7 +2376,7 @@ function GLBConverter() {
                                             ]
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 464,
+                                            lineNumber: 621,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pointLight", {
@@ -1189,7 +2388,7 @@ function GLBConverter() {
                                             intensity: 0.3
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 465,
+                                            lineNumber: 622,
                                             columnNumber: 19
                                         }, this),
                                         modelUrl && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"].Suspense, {
@@ -1202,19 +2401,19 @@ function GLBConverter() {
                                                             className: "w-4 h-4 inline mr-2 animate-spin"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 472,
+                                                            lineNumber: 629,
                                                             columnNumber: 27
                                                         }, void 0),
                                                         "Loading model..."
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 471,
+                                                    lineNumber: 628,
                                                     columnNumber: 25
                                                 }, void 0)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 470,
+                                                lineNumber: 627,
                                                 columnNumber: 23
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(ModelPreview, {
@@ -1223,12 +2422,12 @@ function GLBConverter() {
                                                 autoRotate: autoRotate
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 477,
+                                                lineNumber: 634,
                                                 columnNumber: 23
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 469,
+                                            lineNumber: 626,
                                             columnNumber: 21
                                         }, this),
                                         showGrid && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("gridHelper", {
@@ -1240,7 +2439,7 @@ function GLBConverter() {
                                             ]
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 486,
+                                            lineNumber: 643,
                                             columnNumber: 21
                                         }, this),
                                         showAxes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("axesHelper", {
@@ -1249,7 +2448,7 @@ function GLBConverter() {
                                             ]
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 489,
+                                            lineNumber: 646,
                                             columnNumber: 21
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$three$2f$drei$2f$core$2f$OrbitControls$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["OrbitControls"], {
@@ -1260,25 +2459,25 @@ function GLBConverter() {
                                             maxDistance: 100
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 492,
+                                            lineNumber: 649,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$react$2d$three$2f$drei$2f$core$2f$Environment$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Environment"], {
                                             preset: "studio"
                                         }, void 0, false, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 499,
+                                            lineNumber: 656,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                    lineNumber: 455,
+                                    lineNumber: 612,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 454,
+                                lineNumber: 611,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1286,19 +2485,27 @@ function GLBConverter() {
                                 children: "Use mouse to rotate, zoom, and pan around the model. Try different display modes to analyze the model structure."
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 503,
+                                lineNumber: 660,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/glb-convertor/page.tsx",
-                        lineNumber: 366,
+                        lineNumber: 523,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/glb-convertor/page.tsx",
-                    lineNumber: 365,
+                    lineNumber: 522,
                     columnNumber: 11
+                }, this),
+                isProcessing && activeTab === 'code' && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "absolute top-4 right-4 bg-slate-800 px-3 py-1 rounded text-sm text-purple-400",
+                    children: "Regenerating code..."
+                }, void 0, false, {
+                    fileName: "[project]/app/glb-convertor/page.tsx",
+                    lineNumber: 667,
+                    columnNumber: 3
                 }, this),
                 activeTab === 'code' && projectStructure && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "max-w-6xl mx-auto",
@@ -1306,83 +2513,54 @@ function GLBConverter() {
                         className: "bg-slate-800 rounded-xl border border-slate-700",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "flex justify-between items-center p-6 border-b border-slate-700",
+                                className: "flex flex-col md:flex-row justify-between items-start md:items-center p-6 border-b border-slate-700 gap-4",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "flex items-center gap-4",
+                                        className: "flex flex-col md:flex-row items-start md:items-center gap-4",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
                                                 className: "text-xl font-semibold text-white",
                                                 children: "Project Structure"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 516,
+                                                lineNumber: 677,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex items-center gap-2",
-                                                children: [
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                                        className: "text-slate-300 text-sm",
-                                                        children: "Format:"
-                                                    }, void 0, false, {
-                                                        fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 522,
-                                                        columnNumber: 21
-                                                    }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                                                        value: selectedLanguage,
-                                                        onChange: (e)=>setSelectedLanguage(e.target.value),
-                                                        className: "bg-slate-700 text-white px-3 py-1 rounded border border-slate-600 focus:border-purple-500 outline-none text-sm",
-                                                        children: [
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: "transpiled-tsx",
-                                                                children: "TypeScript (TSX)"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 528,
-                                                                columnNumber: 23
-                                                            }, this),
-                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                                                value: "transpiled-jsx",
-                                                                children: "JavaScript (JSX)"
-                                                            }, void 0, false, {
-                                                                fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 529,
-                                                                columnNumber: 23
-                                                            }, this)
-                                                        ]
-                                                    }, void 0, true, {
-                                                        fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 523,
-                                                        columnNumber: 21
-                                                    }, this)
-                                                ]
-                                            }, void 0, true, {
+                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(LanguageSelector, {
+                                                    selectedLanguage: selectedLanguage,
+                                                    onChange: setSelectedLanguage
+                                                }, void 0, false, {
+                                                    fileName: "[project]/app/glb-convertor/page.tsx",
+                                                    lineNumber: 682,
+                                                    columnNumber: 21
+                                                }, this)
+                                            }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 521,
+                                                lineNumber: 681,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 515,
+                                        lineNumber: 676,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                        className: "flex gap-4",
+                                        className: "flex flex-col md:flex-row gap-4 w-full md:w-auto",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 onClick: ()=>downloadZip(true),
                                                 disabled: isProcessing,
-                                                className: `bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`,
+                                                className: `bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`,
                                                 children: isProcessing ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
                                                             className: "w-4 h-4 animate-spin"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 544,
+                                                            lineNumber: 698,
                                                             columnNumber: 25
                                                         }, this),
                                                         "Processing..."
@@ -1393,28 +2571,28 @@ function GLBConverter() {
                                                             className: "w-4 h-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 549,
+                                                            lineNumber: 703,
                                                             columnNumber: 25
                                                         }, this),
-                                                        "Download Full Project with Example Page"
+                                                        "Download Full Project"
                                                     ]
                                                 }, void 0, true)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 535,
+                                                lineNumber: 689,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 onClick: ()=>downloadZip(false),
                                                 disabled: isProcessing,
-                                                className: `bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`,
+                                                className: `bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`,
                                                 children: isProcessing ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2d$circle$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader2$3e$__["Loader2"], {
                                                             className: "w-4 h-4 animate-spin"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 563,
+                                                            lineNumber: 717,
                                                             columnNumber: 25
                                                         }, this),
                                                         "Processing..."
@@ -1425,54 +2603,54 @@ function GLBConverter() {
                                                             className: "w-4 h-4"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 568,
+                                                            lineNumber: 722,
                                                             columnNumber: 25
                                                         }, this),
-                                                        "Download Component Only"
+                                                        "Download Component"
                                                     ]
                                                 }, void 0, true)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 554,
+                                                lineNumber: 708,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                                 onClick: downloadModel,
-                                                className: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2",
+                                                className: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 w-full md:w-auto",
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
                                                         className: "w-4 h-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 577,
+                                                        lineNumber: 731,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Download GLB"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 573,
+                                                lineNumber: 727,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 534,
+                                        lineNumber: 688,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 514,
+                                lineNumber: 675,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "p-6 border-b border-slate-700",
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "flex items-start gap-6",
+                                    className: "flex flex-col lg:flex-row items-start gap-6",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex-1",
+                                            className: "flex-1 min-w-0",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
                                                     className: "text-lg font-semibold text-white mb-3 flex items-center",
@@ -1481,14 +2659,14 @@ function GLBConverter() {
                                                             className: "w-5 h-5 mr-2 text-purple-400"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 588,
+                                                            lineNumber: 742,
                                                             columnNumber: 23
                                                         }, this),
                                                         "Project Structure"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 587,
+                                                    lineNumber: 741,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1503,7 +2681,7 @@ function GLBConverter() {
                                                                         className: "w-4 h-4 mr-2 text-yellow-400"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 594,
+                                                                        lineNumber: 748,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1511,13 +2689,13 @@ function GLBConverter() {
                                                                         children: "components"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 595,
+                                                                        lineNumber: 749,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 593,
+                                                                lineNumber: 747,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1530,7 +2708,7 @@ function GLBConverter() {
                                                                                 className: "w-4 h-4 mr-2 text-blue-400"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 599,
+                                                                                lineNumber: 753,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1538,13 +2716,13 @@ function GLBConverter() {
                                                                                 children: componentName
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 600,
+                                                                                lineNumber: 754,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 598,
+                                                                        lineNumber: 752,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1557,20 +2735,23 @@ function GLBConverter() {
                                                                                         className: "w-4 h-4 mr-2 text-green-400"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 604,
+                                                                                        lineNumber: 758,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        children: "index.tsx"
-                                                                                    }, void 0, false, {
+                                                                                        children: [
+                                                                                            "index.",
+                                                                                            LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
+                                                                                        ]
+                                                                                    }, void 0, true, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 605,
+                                                                                        lineNumber: 759,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 603,
+                                                                                lineNumber: 757,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1580,7 +2761,7 @@ function GLBConverter() {
                                                                                         className: "w-4 h-4 mr-2 text-cyan-400"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 608,
+                                                                                        lineNumber: 762,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1588,13 +2769,13 @@ function GLBConverter() {
                                                                                         children: "geometries"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 609,
+                                                                                        lineNumber: 763,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 607,
+                                                                                lineNumber: 761,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1606,28 +2787,29 @@ function GLBConverter() {
                                                                                                 className: "w-4 h-4 mr-2 text-cyan-400"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                                lineNumber: 614,
+                                                                                                lineNumber: 768,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                 children: [
                                                                                                     geometry.name,
-                                                                                                    "Geometry.ts"
+                                                                                                    "Geometry.",
+                                                                                                    LANGUAGES.find((l)=>l.id === selectedLanguage)?.geometryExtension
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                                lineNumber: 615,
+                                                                                                lineNumber: 769,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, i, true, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 613,
+                                                                                        lineNumber: 767,
                                                                                         columnNumber: 33
                                                                                     }, this))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 611,
+                                                                                lineNumber: 765,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1637,7 +2819,7 @@ function GLBConverter() {
                                                                                         className: "w-4 h-4 mr-2 text-cyan-400"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 620,
+                                                                                        lineNumber: 774,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1645,13 +2827,13 @@ function GLBConverter() {
                                                                                         children: "meshes"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 621,
+                                                                                        lineNumber: 775,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 619,
+                                                                                lineNumber: 773,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1663,28 +2845,29 @@ function GLBConverter() {
                                                                                                 className: "w-4 h-4 mr-2 text-cyan-400"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                                lineNumber: 626,
+                                                                                                lineNumber: 780,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                 children: [
                                                                                                     mesh.name,
-                                                                                                    ".tsx"
+                                                                                                    ".",
+                                                                                                    LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                                lineNumber: 627,
+                                                                                                lineNumber: 781,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, i, true, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 625,
+                                                                                        lineNumber: 779,
                                                                                         columnNumber: 33
                                                                                     }, this))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 623,
+                                                                                lineNumber: 777,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1694,7 +2877,7 @@ function GLBConverter() {
                                                                                         className: "w-4 h-4 mr-2 text-orange-400"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 632,
+                                                                                        lineNumber: 786,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1702,13 +2885,13 @@ function GLBConverter() {
                                                                                         children: "materials"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 633,
+                                                                                        lineNumber: 787,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 631,
+                                                                                lineNumber: 785,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1720,40 +2903,41 @@ function GLBConverter() {
                                                                                                 className: "w-4 h-4 mr-2 text-orange-400"
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                                lineNumber: 638,
+                                                                                                lineNumber: 792,
                                                                                                 columnNumber: 35
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                                                 children: [
                                                                                                     material.name,
-                                                                                                    ".tsx"
+                                                                                                    ".",
+                                                                                                    LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                                lineNumber: 639,
+                                                                                                lineNumber: 793,
                                                                                                 columnNumber: 35
                                                                                             }, this)
                                                                                         ]
                                                                                     }, i, true, {
                                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                        lineNumber: 637,
+                                                                                        lineNumber: 791,
                                                                                         columnNumber: 33
                                                                                     }, this))
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 635,
+                                                                                lineNumber: 789,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 602,
+                                                                        lineNumber: 756,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 597,
+                                                                lineNumber: 751,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1763,7 +2947,7 @@ function GLBConverter() {
                                                                         className: "w-4 h-4 mr-2 text-purple-400"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 646,
+                                                                        lineNumber: 800,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1771,13 +2955,13 @@ function GLBConverter() {
                                                                         children: "app"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 647,
+                                                                        lineNumber: 801,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 645,
+                                                                lineNumber: 799,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1790,7 +2974,7 @@ function GLBConverter() {
                                                                                 className: "w-4 h-4 mr-2 text-blue-400"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 651,
+                                                                                lineNumber: 805,
                                                                                 columnNumber: 29
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1801,13 +2985,13 @@ function GLBConverter() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                lineNumber: 652,
+                                                                                lineNumber: 806,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 650,
+                                                                        lineNumber: 804,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1819,52 +3003,55 @@ function GLBConverter() {
                                                                                     className: "w-4 h-4 mr-2 text-green-400"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                    lineNumber: 656,
+                                                                                    lineNumber: 810,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                    children: "page.tsx"
-                                                                                }, void 0, false, {
+                                                                                    children: [
+                                                                                        "page.",
+                                                                                        LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
+                                                                                    ]
+                                                                                }, void 0, true, {
                                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                                    lineNumber: 657,
+                                                                                    lineNumber: 811,
                                                                                     columnNumber: 31
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                            lineNumber: 655,
+                                                                            lineNumber: 809,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 654,
+                                                                        lineNumber: 808,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 649,
+                                                                lineNumber: 803,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 592,
+                                                        lineNumber: 746,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 591,
+                                                    lineNumber: 745,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 586,
+                                            lineNumber: 740,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex-1",
+                                            className: "flex-1 min-w-0",
                                             children: [
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h4", {
                                                     className: "text-lg font-semibold text-white mb-3 flex items-center",
@@ -1873,14 +3060,14 @@ function GLBConverter() {
                                                             className: "w-5 h-5 mr-2 text-purple-400"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 667,
+                                                            lineNumber: 821,
                                                             columnNumber: 23
                                                         }, this),
                                                         "Model Statistics"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 666,
+                                                    lineNumber: 820,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1895,7 +3082,7 @@ function GLBConverter() {
                                                                         children: "Meshes:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 673,
+                                                                        lineNumber: 827,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1903,13 +3090,13 @@ function GLBConverter() {
                                                                         children: projectStructure.meshes.length
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 674,
+                                                                        lineNumber: 828,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 672,
+                                                                lineNumber: 826,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1919,7 +3106,7 @@ function GLBConverter() {
                                                                         children: "Geometry Files:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 677,
+                                                                        lineNumber: 831,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1927,13 +3114,13 @@ function GLBConverter() {
                                                                         children: projectStructure.geometries?.length || 0
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 678,
+                                                                        lineNumber: 832,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 676,
+                                                                lineNumber: 830,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1943,7 +3130,7 @@ function GLBConverter() {
                                                                         children: "Materials:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 681,
+                                                                        lineNumber: 835,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1951,13 +3138,13 @@ function GLBConverter() {
                                                                         children: projectStructure.materials.length
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 682,
+                                                                        lineNumber: 836,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 680,
+                                                                lineNumber: 834,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1967,7 +3154,7 @@ function GLBConverter() {
                                                                         children: "Total Vertices:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 685,
+                                                                        lineNumber: 839,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1975,13 +3162,13 @@ function GLBConverter() {
                                                                         children: projectStructure.totalVertices.toLocaleString()
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 686,
+                                                                        lineNumber: 840,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 684,
+                                                                lineNumber: 838,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1991,7 +3178,7 @@ function GLBConverter() {
                                                                         children: "Total Triangles:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 689,
+                                                                        lineNumber: 843,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1999,13 +3186,13 @@ function GLBConverter() {
                                                                         children: projectStructure.totalTriangles.toLocaleString()
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 690,
+                                                                        lineNumber: 844,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 688,
+                                                                lineNumber: 842,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2015,7 +3202,7 @@ function GLBConverter() {
                                                                         children: "File Size:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 693,
+                                                                        lineNumber: 847,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2023,13 +3210,13 @@ function GLBConverter() {
                                                                         children: file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'N/A'
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 694,
+                                                                        lineNumber: 848,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 692,
+                                                                lineNumber: 846,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2040,40 +3227,40 @@ function GLBConverter() {
                             during transpilation to prevent browser memory issues.`
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 697,
+                                                                    lineNumber: 851,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                lineNumber: 696,
+                                                                lineNumber: 850,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 671,
+                                                        lineNumber: 825,
                                                         columnNumber: 23
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 670,
+                                                    lineNumber: 824,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                            lineNumber: 665,
+                                            lineNumber: 819,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                    lineNumber: 585,
+                                    lineNumber: 739,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 584,
+                                lineNumber: 738,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2089,35 +3276,30 @@ function GLBConverter() {
                                                         className: "w-5 h-5 mr-2 text-purple-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 712,
+                                                        lineNumber: 866,
                                                         columnNumber: 21
                                                     }, this),
-                                                    "index.tsx - Main Component"
+                                                    "index.",
+                                                    LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension,
+                                                    " - Main Component"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 711,
+                                                lineNumber: 865,
                                                 columnNumber: 19
                                             }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
-                                                className: "bg-slate-900 rounded-lg p-4 overflow-x-auto text-sm max-h-60 overflow-y-auto",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
-                                                    className: "text-slate-300 whitespace-pre-wrap",
-                                                    children: projectStructure.indexContent
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 716,
-                                                    columnNumber: 21
-                                                }, this)
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CodeEditor, {
+                                                code: projectStructure.indexContent,
+                                                languageId: selectedLanguage
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 715,
+                                                lineNumber: 869,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 710,
+                                        lineNumber: 864,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2130,14 +3312,14 @@ function GLBConverter() {
                                                         className: "w-5 h-5 mr-2 text-cyan-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 722,
+                                                        lineNumber: 877,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Example Page"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 721,
+                                                lineNumber: 876,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2150,43 +3332,37 @@ function GLBConverter() {
                                                             children: [
                                                                 "app/",
                                                                 componentName.toLowerCase(),
-                                                                "-page/page.tsx"
+                                                                "-page/page.",
+                                                                LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 727,
+                                                            lineNumber: 882,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 726,
+                                                        lineNumber: 881,
                                                         columnNumber: 21
                                                     }, this),
-                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
-                                                        className: "p-4 overflow-x-auto text-sm max-h-60 overflow-y-auto",
-                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
-                                                            className: "text-slate-300 whitespace-pre-wrap",
-                                                            children: projectStructure.examplePageContent
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 730,
-                                                            columnNumber: 23
-                                                        }, this)
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CodeEditor, {
+                                                        code: projectStructure.examplePageContent,
+                                                        languageId: selectedLanguage
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 729,
+                                                        lineNumber: 884,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 725,
+                                                lineNumber: 880,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 720,
+                                        lineNumber: 875,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2199,14 +3375,14 @@ function GLBConverter() {
                                                         className: "w-5 h-5 mr-2 text-cyan-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 737,
+                                                        lineNumber: 893,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Geometry Files"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 736,
+                                                lineNumber: 892,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2221,37 +3397,31 @@ function GLBConverter() {
                                                                         className: "text-cyan-400 font-mono",
                                                                         children: [
                                                                             geometry.name,
-                                                                            "Geometry.ts"
+                                                                            "Geometry.",
+                                                                            LANGUAGES.find((l)=>l.id === selectedLanguage)?.geometryExtension
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 744,
+                                                                        lineNumber: 900,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 743,
+                                                                    lineNumber: 899,
                                                                     columnNumber: 25
                                                                 }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
-                                                                    className: "p-4 overflow-x-auto text-sm max-h-40 overflow-y-auto",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
-                                                                        className: "text-slate-300 whitespace-pre-wrap",
-                                                                        children: geometry.content
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 747,
-                                                                        columnNumber: 27
-                                                                    }, this)
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CodeEditor, {
+                                                                    code: geometry.content,
+                                                                    languageId: selectedLanguage
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 746,
+                                                                    lineNumber: 902,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, i, true, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 742,
+                                                            lineNumber: 898,
                                                             columnNumber: 23
                                                         }, this)),
                                                     projectStructure.geometries && projectStructure.geometries.length > 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2263,19 +3433,19 @@ function GLBConverter() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 752,
+                                                        lineNumber: 909,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 740,
+                                                lineNumber: 896,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 735,
+                                        lineNumber: 891,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2288,14 +3458,14 @@ function GLBConverter() {
                                                         className: "w-5 h-5 mr-2 text-cyan-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 761,
+                                                        lineNumber: 918,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Mesh Components"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 760,
+                                                lineNumber: 917,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2310,37 +3480,31 @@ function GLBConverter() {
                                                                         className: "text-cyan-400 font-mono",
                                                                         children: [
                                                                             mesh.name,
-                                                                            ".tsx"
+                                                                            ".",
+                                                                            LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 768,
+                                                                        lineNumber: 925,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 767,
+                                                                    lineNumber: 924,
                                                                     columnNumber: 25
                                                                 }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
-                                                                    className: "p-4 overflow-x-auto text-sm max-h-40 overflow-y-auto",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
-                                                                        className: "text-slate-300 whitespace-pre-wrap",
-                                                                        children: mesh.content
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 771,
-                                                                        columnNumber: 27
-                                                                    }, this)
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CodeEditor, {
+                                                                    code: mesh.content,
+                                                                    languageId: selectedLanguage
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 770,
+                                                                    lineNumber: 927,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, i, true, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 766,
+                                                            lineNumber: 923,
                                                             columnNumber: 23
                                                         }, this)),
                                                     projectStructure.meshes.length > 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2352,19 +3516,19 @@ function GLBConverter() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 776,
+                                                        lineNumber: 934,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 764,
+                                                lineNumber: 921,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 759,
+                                        lineNumber: 916,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2376,14 +3540,14 @@ function GLBConverter() {
                                                         className: "w-5 h-5 mr-2 text-orange-400"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 785,
+                                                        lineNumber: 943,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Material Components"
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 784,
+                                                lineNumber: 942,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2398,37 +3562,31 @@ function GLBConverter() {
                                                                         className: "text-orange-400 font-mono",
                                                                         children: [
                                                                             material.name,
-                                                                            ".tsx"
+                                                                            ".",
+                                                                            LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 792,
+                                                                        lineNumber: 950,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 791,
+                                                                    lineNumber: 949,
                                                                     columnNumber: 25
                                                                 }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
-                                                                    className: "p-4 overflow-x-auto text-sm max-h-40 overflow-y-auto",
-                                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
-                                                                        className: "text-slate-300 whitespace-pre-wrap",
-                                                                        children: material.content
-                                                                    }, void 0, false, {
-                                                                        fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                        lineNumber: 795,
-                                                                        columnNumber: 27
-                                                                    }, this)
+                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CodeEditor, {
+                                                                    code: material.content,
+                                                                    languageId: selectedLanguage
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                                    lineNumber: 794,
+                                                                    lineNumber: 952,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, i, true, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 790,
+                                                            lineNumber: 948,
                                                             columnNumber: 23
                                                         }, this)),
                                                     projectStructure.materials.length > 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2440,25 +3598,25 @@ function GLBConverter() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 800,
+                                                        lineNumber: 959,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 788,
+                                                lineNumber: 946,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 783,
+                                        lineNumber: 941,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 709,
+                                lineNumber: 863,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2469,7 +3627,7 @@ function GLBConverter() {
                                         children: "How to Use"
                                     }, void 0, false, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 809,
+                                        lineNumber: 968,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2482,7 +3640,7 @@ function GLBConverter() {
                                                         children: "1. Download the complete project with example page:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 814,
+                                                        lineNumber: 973,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
@@ -2492,18 +3650,18 @@ function GLBConverter() {
                                                             children: `<button onClick={() => downloadZip(true)}>Download Full Project</button>`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 816,
+                                                            lineNumber: 975,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 815,
+                                                        lineNumber: 974,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 813,
+                                                lineNumber: 972,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2512,12 +3670,12 @@ function GLBConverter() {
                                                     children: "2. Extract the zip file into your project root"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 820,
+                                                    lineNumber: 979,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 819,
+                                                lineNumber: 978,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2527,28 +3685,28 @@ function GLBConverter() {
                                                         children: "3. The example page will be available at:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 823,
+                                                        lineNumber: 982,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
                                                         className: "bg-slate-900 rounded p-2 text-sm",
                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("code", {
                                                             className: "text-blue-400",
-                                                            children: `app/${componentName.toLowerCase()}-page/page.tsx`
+                                                            children: `app/${componentName.toLowerCase()}-page/page.${LANGUAGES.find((l)=>l.id === selectedLanguage)?.extension}`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 825,
+                                                            lineNumber: 984,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 824,
+                                                        lineNumber: 983,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 822,
+                                                lineNumber: 981,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2558,7 +3716,7 @@ function GLBConverter() {
                                                         children: "4. Import and use the component elsewhere:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 829,
+                                                        lineNumber: 988,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
@@ -2572,18 +3730,18 @@ function GLBConverter() {
 </Canvas>`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 831,
+                                                            lineNumber: 990,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 830,
+                                                        lineNumber: 989,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 828,
+                                                lineNumber: 987,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2593,7 +3751,7 @@ function GLBConverter() {
                                                         children: "5. Customize individual parts:"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 839,
+                                                        lineNumber: 998,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("pre", {
@@ -2604,7 +3762,6 @@ function GLBConverter() {
 import { MeshName } from '@/components/${componentName}/meshes'
 import { MeshNameGeometry } from '@/components/${componentName}/geometries'
 import { MaterialName } from '@/components/${componentName}/materials'
-
 // Example: Change material of a specific mesh
 function CustomModel() {
   return (
@@ -2615,18 +3772,18 @@ function CustomModel() {
 }`
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 841,
+                                                            lineNumber: 1000,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                                        lineNumber: 840,
+                                                        lineNumber: 999,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 838,
+                                                lineNumber: 997,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2637,77 +3794,77 @@ function CustomModel() {
                                                         "For extremely large models, the converter automatically applies optimizations:",
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 859,
+                                                            lineNumber: 1017,
                                                             columnNumber: 23
                                                         }, this),
                                                         "- Geometry data is separated into reusable blocks for better maintainability",
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 860,
+                                                            lineNumber: 1018,
                                                             columnNumber: 23
                                                         }, this),
                                                         "- Geometry files are stored in a dedicated folder for easy access",
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 861,
+                                                            lineNumber: 1019,
                                                             columnNumber: 23
                                                         }, this),
                                                         "- Mesh components are simplified to just import and use geometry",
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 862,
+                                                            lineNumber: 1020,
                                                             columnNumber: 23
                                                         }, this),
                                                         "- Memory usage is optimized for large models through better data structure",
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                             fileName: "[project]/app/glb-convertor/page.tsx",
-                                                            lineNumber: 863,
+                                                            lineNumber: 1021,
                                                             columnNumber: 23
                                                         }, this),
                                                         "- Example page is included for immediate use with proper Canvas setup"
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/glb-convertor/page.tsx",
-                                                    lineNumber: 857,
+                                                    lineNumber: 1015,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                                lineNumber: 856,
+                                                lineNumber: 1014,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/glb-convertor/page.tsx",
-                                        lineNumber: 812,
+                                        lineNumber: 971,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/glb-convertor/page.tsx",
-                                lineNumber: 808,
+                                lineNumber: 967,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/glb-convertor/page.tsx",
-                        lineNumber: 513,
+                        lineNumber: 674,
                         columnNumber: 13
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/glb-convertor/page.tsx",
-                    lineNumber: 512,
+                    lineNumber: 673,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/glb-convertor/page.tsx",
-            lineNumber: 235,
+            lineNumber: 391,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/glb-convertor/page.tsx",
-        lineNumber: 234,
+        lineNumber: 390,
         columnNumber: 5
     }, this);
 }
@@ -2786,7 +3943,7 @@ function ModelPreview({ url, displayMode, autoRotate }) {
                     // Dispose of old materials to prevent memory leaks
                     if (Array.isArray(originalMaterial)) {
                         originalMaterial.forEach((material)=>material.dispose());
-                    } else if (originalMaterial && originalMaterial.dispose) {
+                    } else if (originalMaterial && 'dispose' in originalMaterial) {
                         originalMaterial.dispose();
                     }
                     // Create new materials based on display mode
@@ -2850,19 +4007,19 @@ function ModelPreview({ url, displayMode, autoRotate }) {
                         className: "w-4 h-4 inline mr-2 animate-spin"
                     }, void 0, false, {
                         fileName: "[project]/app/glb-convertor/page.tsx",
-                        lineNumber: 1025,
+                        lineNumber: 1183,
                         columnNumber: 11
                     }, this),
                     "Loading model..."
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/glb-convertor/page.tsx",
-                lineNumber: 1024,
+                lineNumber: 1182,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/glb-convertor/page.tsx",
-            lineNumber: 1023,
+            lineNumber: 1181,
             columnNumber: 7
         }, this);
     }
@@ -2881,7 +4038,7 @@ function ModelPreview({ url, displayMode, autoRotate }) {
         ]
     }, void 0, false, {
         fileName: "[project]/app/glb-convertor/page.tsx",
-        lineNumber: 1033,
+        lineNumber: 1191,
         columnNumber: 5
     }, this);
 }
