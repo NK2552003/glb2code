@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import type { MeshData, MaterialData, ProjectStructure, GeometryData } from '@/app/types/glb-convertor';
 
-// Language configuration for code generation
+// Language configuration for code generation with proper 2025 library support
 const LANGUAGES = {
   typescript: {
     extension: 'tsx',
@@ -230,7 +230,6 @@ const LANGUAGES = {
     stringLiteral: (value: string) => `"${value}"`
   }
 } as const;
-
 type LanguageId = keyof typeof LANGUAGES;
 
 /**
@@ -239,6 +238,24 @@ type LanguageId = keyof typeof LANGUAGES;
  */
 function capitalize(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Sanitizes names to be valid identifiers
+ */
+function sanitizeName(name: string): string {
+  // Replace invalid characters with underscores
+  let safeName = name.replace(/[^a-zA-Z0-9_]/g, '_');
+  // Ensure it starts with a letter
+  if (!/^[a-zA-Z_]/.test(safeName)) {
+    safeName = '_' + safeName;
+  }
+  // Handle reserved keywords
+  const reservedKeywords = ['default', 'function', 'class', 'export', 'import', 'let', 'const', 'var', 'continue', 'break', 'case'];
+  if (reservedKeywords.includes(safeName.toLowerCase())) {
+    safeName = '_' + safeName;
+  }
+  return safeName;
 }
 
 /**
@@ -257,13 +274,11 @@ export function generateProjectStructure(
   const geometries: GeometryData[] = []; // New array for geometry files
   let totalVertices = 0;
   let totalTriangles = 0;
-  
   // Process the scene to extract meshes and materials
   gltf.scene.traverse((object) => {
     if (object.isMesh) {
       const mesh = object as THREE.Mesh;
       const geometry = mesh.geometry;
-      
       // Count vertices and triangles
       totalVertices += geometry.attributes.position.count;
       if (geometry.index) {
@@ -271,12 +286,10 @@ export function generateProjectStructure(
       } else {
         totalTriangles += geometry.attributes.position.count / 3;
       }
-      
       // Generate mesh name
       const meshName = mesh.name || `Mesh_${meshes.length}`;
       const safeMeshName = sanitizeName(meshName);
       const capitalizedMeshName = capitalize(safeMeshName);
-      
       // Generate geometry file
       const geometryFile = generateGeometryFile(capitalizedMeshName, geometry, languageId);
       geometries.push({
@@ -284,21 +297,18 @@ export function generateProjectStructure(
         content: geometryFile,
         originalName: meshName
       });
-      
-      // Generate mesh component (now simpler)
+      // Generate mesh component
       const meshComponent = generateMeshComponent(capitalizedMeshName, geometry, displayMode, languageId);
       meshes.push({
         name: capitalizedMeshName,
         content: meshComponent,
         originalName: meshName
       });
-      
       // Process materials
       const material = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
       const materialName = material.name || `Material_${materials.length}`;
       const safeMaterialName = sanitizeName(materialName);
       const capitalizedMaterialName = capitalize(safeMaterialName);
-      
       // Only add unique materials
       if (!materials.some(m => m.name === capitalizedMaterialName)) {
         const materialComponent = generateMaterialComponent(capitalizedMaterialName, material, displayMode, languageId);
@@ -310,16 +320,12 @@ export function generateProjectStructure(
       }
     }
   });
-  
   // Capitalize the component name for the main component
   const capitalizedComponentName = capitalize(componentName);
-  
   // Generate the main index component
   const indexContent = generateIndexComponent(capitalizedComponentName, meshes, materials, displayMode, languageId);
-  
   // Generate the example page
   const examplePageContent = generateExamplePage(capitalizedComponentName, languageId);
-  
   return {
     componentName: capitalizedComponentName,
     indexContent,
@@ -343,7 +349,6 @@ function generateGeometryFile(meshName: string, geometry: THREE.BufferGeometry, 
   const normals = geometry.attributes.normal ? Array.from(geometry.attributes.normal.array) : null;
   const uvs = geometry.attributes.uv ? Array.from(geometry.attributes.uv.array) : null;
   const indices = geometry.index ? Array.from(geometry.index.array) : null;
-  
   // Check if geometry is too large for direct embedding
   const isLargeGeometry = positions.length > 100000;
   
@@ -400,167 +405,501 @@ export const ${meshName}Geometry = (() => {
   return geometry;
 })();
 `;
+
     case 'python':
       return `import numpy as np
-from three import BufferGeometry, BufferAttribute
+import moderngl
+from pyglet import window
 
-# ${meshName} geometry definition
-# This can be easily modified without affecting component code
-${meshName}Geometry = (lambda: 
-    ${isLargeGeometry ? 
-      `# Large geometry detected - using optimized approach
-      # For extremely large models, consider using binary data files
-      def create_geometry_chunk(data, item_size):
-          chunk_size = 50000
-          chunks = []
-          for i in range(0, len(data), chunk_size):
-              chunk = data[i:i + chunk_size]
-              chunks.append(np.array(chunk, dtype=np.float32))
-          return np.concatenate(chunks)
-      
-      # Position data
-      position_chunks = create_geometry_chunk(${JSON.stringify(positions)}, 3)
-      positions = np.array(position_chunks, dtype=np.float32)
-      geometry = BufferGeometry()
-      geometry.set_attribute('position', BufferAttribute(positions, 3))
-      ${normals ? `# Normal data
-      normal_chunks = create_geometry_chunk(${JSON.stringify(normals)}, 3)
-      normals = np.array(normal_chunks, dtype=np.float32)
-      geometry.set_attribute('normal', BufferAttribute(normals, 3))` : ''}
-      ${uvs ? `# UV data
-      uv_chunks = create_geometry_chunk(${JSON.stringify(uvs)}, 2)
-      uvs = np.array(uv_chunks, dtype=np.float32)
-      geometry.set_attribute('uv', BufferAttribute(uvs, 2))` : ''}
-      ${indices ? `# Index data
-      index_chunks = create_geometry_chunk(${JSON.stringify(indices)}, 1)
-      indices = np.array(index_chunks, dtype=np.uint16)
-      geometry.set_index(BufferAttribute(indices, 1))` : ''}
-      geometry.compute_vertex_normals()
-      return geometry` :
-      `# Position data
-      positions = np.array(${JSON.stringify(positions)}, dtype=np.float32)
-      geometry = BufferGeometry()
-      geometry.set_attribute('position', BufferAttribute(positions, 3))
-      ${normals ? `# Normal data
-      normals = np.array(${JSON.stringify(normals)}, dtype=np.float32)
-      geometry.set_attribute('normal', BufferAttribute(normals, 3))` : ''}
-      ${uvs ? `# UV data
-      uvs = np.array(${JSON.stringify(uvs)}, dtype=np.float32)
-      geometry.set_attribute('uv', BufferAttribute(uvs, 2))` : ''}
-      ${indices ? `# Index data
-      indices = np.array(${JSON.stringify(indices)}, dtype=np.uint16)
-      geometry.set_index(BufferAttribute(indices, 1))` : ''}
-      geometry.compute_vertex_normals()
-      return geometry`}
-)();
+class ${meshName}Geometry:
+    """${meshName} geometry definition for ModernGL"""
+    
+    @staticmethod
+    def create(ctx: moderngl.Context):
+        # Position data
+        ${isLargeGeometry ? 
+          `# Large geometry detected - using chunked approach
+          positions = np.array(${JSON.stringify(positions)}, dtype='f4')
+          vbo_positions = ctx.buffer(reserve=positions.nbytes)
+          vbo_positions.write(positions.tobytes())
+          
+          ${normals ? `# Normal data
+          normals = np.array(${JSON.stringify(normals)}, dtype='f4')
+          vbo_normals = ctx.buffer(reserve=normals.nbytes)
+          vbo_normals.write(normals.tobytes())` : ''}
+          
+          ${uvs ? `# UV data
+          uvs = np.array(${JSON.stringify(uvs)}, dtype='f4')
+          vbo_uvs = ctx.buffer(reserve=uvs.nbytes)
+          vbo_uvs.write(uvs.tobytes())` : ''}
+          
+          ${indices ? `# Index data
+          indices = np.array(${JSON.stringify(indices)}, dtype='i4')
+          ibo = ctx.buffer(reserve=indices.nbytes)
+          ibo.write(indices.tobytes())` : ''}` :
+          `positions = np.array(${JSON.stringify(positions)}, dtype='f4')
+          vbo_positions = ctx.buffer(positions)
+          
+          ${normals ? `# Normal data
+          normals = np.array(${JSON.stringify(normals)}, dtype='f4')
+          vbo_normals = ctx.buffer(normals)` : ''}
+          
+          ${uvs ? `# UV data
+          uvs = np.array(${JSON.stringify(uvs)}, dtype='f4')
+          vbo_uvs = ctx.buffer(uvs)` : ''}
+          
+          ${indices ? `# Index data
+          indices = np.array(${JSON.stringify(indices)}, dtype='i4')
+          ibo = ctx.buffer(indices)` : ''}`
+        }
+        
+        # Create vertex array
+        ${indices ? 
+          `vao = ctx.vertex_array(
+              prog,
+              [
+                  (vbo_positions, '3f', 'in_position'),
+                  ${normals ? `(vbo_normals, '3f', 'in_normal'),` : ''}
+                  ${uvs ? `(vbo_uvs, '2f', 'in_uv'),` : ''}
+              ],
+              index_buffer=ibo
+          )` :
+          `vao = ctx.vertex_array(
+              prog,
+              [
+                  (vbo_positions, '3f', 'in_position'),
+                  ${normals ? `(vbo_normals, '3f', 'in_normal'),` : ''}
+                  ${uvs ? `(vbo_uvs, '2f', 'in_uv'),` : ''}
+              ]
+          )`
+        }
+        
+        return vao
 `;
+
     case 'java':
-      return `import three.BufferGeometry;
-import three.BufferAttribute;
+      return `import com.jme3.scene.Mesh;
+import com.jme3.scene.VertexBuffer;
+import com.jme3.math.Vector3f;
+import com.jme3.math.Vector2f;
+import com.jme3.buffer.BufferUtils;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 /**
- * ${meshName} geometry definition
- * This can be easily modified without affecting component code
+ * ${meshName} geometry definition for jMonkeyEngine 2025
  */
 public class ${meshName}Geometry {
-    public static BufferGeometry create() {
-        BufferGeometry geometry = new BufferGeometry();
-        ${isLargeGeometry ? 
-          `// Large geometry detected - using optimized approach
-          // For extremely large models, consider using binary data files
-          float[] positions = createGeometryChunk(${JSON.stringify(positions)}, 3);
-          geometry.setAttribute("position", new BufferAttribute(positions, 3));
-          ${normals ? `float[] normals = createGeometryChunk(${JSON.stringify(normals)}, 3);
-          geometry.setAttribute("normal", new BufferAttribute(normals, 3));` : ''}
-          ${uvs ? `float[] uvs = createGeometryChunk(${JSON.stringify(uvs)}, 2);
-          geometry.setAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
-          ${indices ? `short[] indices = createGeometryChunk(${JSON.stringify(indices)}, 1);
-          geometry.setIndex(new BufferAttribute(indices, 1));` : ''}
-          geometry.computeVertexNormals();
-          return geometry;` :
-          `float[] positions = ${JSON.stringify(positions)};
-          geometry.setAttribute("position", new BufferAttribute(positions, 3));
-          ${normals ? `float[] normals = ${JSON.stringify(normals)};
-          geometry.setAttribute("normal", new BufferAttribute(normals, 3));` : ''}
-          ${uvs ? `float[] uvs = ${JSON.stringify(uvs)};
-          geometry.setAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
-          ${indices ? `short[] indices = ${JSON.stringify(indices)};
-          geometry.setIndex(new BufferAttribute(indices, 1));` : ''}
-          geometry.computeVertexNormals();
-          return geometry;`}
+    public static Mesh create() {
+        Mesh mesh = new Mesh();
+        
+        // Position data
+        float[] positions = ${JSON.stringify(positions)};
+        mesh.setBuffer(VertexBuffer.Type.Position, 3, BufferUtils.createFloatBuffer(positions));
+        
+        ${normals ? `// Normal data
+        float[] normals = ${JSON.stringify(normals)};
+        mesh.setBuffer(VertexBuffer.Type.Normal, 3, BufferUtils.createFloatBuffer(normals));` : ''}
+        
+        ${uvs ? `// UV data
+        float[] uvs = ${JSON.stringify(uvs)};
+        mesh.setBuffer(VertexBuffer.Type.TexCoord, 2, BufferUtils.createFloatBuffer(uvs));` : ''}
+        
+        ${indices ? `// Index data
+        int[] indices = ${JSON.stringify(indices)};
+        mesh.setBuffer(VertexBuffer.Type.Index, 3, BufferUtils.createIntBuffer(indices));` : ''}
+        
+        mesh.updateBound();
+        return mesh;
     }
-    
-    ${isLargeGeometry ? 
-      `private static float[] createGeometryChunk(float[] data, int itemSize) {
-        int chunkSize = 50000;
-        List<Float> chunks = new ArrayList<>();
-        for (int i = 0; i < data.length; i += chunkSize) {
-            int end = Math.min(i + chunkSize, data.length);
-            for (int j = i; j < end; j++) {
-                chunks.add(data[j]);
-            }
-        }
-        float[] result = new float[chunks.size()];
-        for (int i = 0; i < chunks.size(); i++) {
-            result[i] = chunks.get(i);
-        }
-        return result;
-    }` : ''}
 }
 `;
+
     case 'csharp':
-      return `using ThreeJs;
+      return `using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
 
 /**
- * ${meshName} geometry definition
- * This can be easily modified without affecting component code
+ * ${meshName} geometry definition for Unity 2025
  */
-public class ${meshName}Geometry
+public static class ${meshName}Geometry
 {
-    public static BufferGeometry Create()
+    public static Mesh Create()
     {
-        var geometry = new BufferGeometry();
-        ${isLargeGeometry ? 
-          `// Large geometry detected - using optimized approach
-          // For extremely large models, consider using binary data files
-          var positions = CreateGeometryChunk(${JSON.stringify(positions)}, 3);
-          geometry.SetAttribute("position", new BufferAttribute(positions, 3));
-          ${normals ? `var normals = CreateGeometryChunk(${JSON.stringify(normals)}, 3);
-          geometry.SetAttribute("normal", new BufferAttribute(normals, 3));` : ''}
-          ${uvs ? `var uvs = CreateGeometryChunk(${JSON.stringify(uvs)}, 2);
-          geometry.SetAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
-          ${indices ? `var indices = CreateGeometryChunk(${JSON.stringify(indices)}, 1);
-          geometry.SetIndex(new BufferAttribute(indices, 1));` : ''}
-          geometry.ComputeVertexNormals();
-          return geometry;` :
-          `var positions = new float[] { ${JSON.stringify(positions).slice(1, -1)} };
-          geometry.SetAttribute("position", new BufferAttribute(positions, 3));
-          ${normals ? `var normals = new float[] { ${JSON.stringify(normals).slice(1, -1)} };
-          geometry.SetAttribute("normal", new BufferAttribute(normals, 3));` : ''}
-          ${uvs ? `var uvs = new float[] { ${JSON.stringify(uvs).slice(1, -1)} };
-          geometry.SetAttribute("uv", new BufferAttribute(uvs, 2));` : ''}
-          ${indices ? `var indices = new ushort[] { ${JSON.stringify(indices).slice(1, -1)} };
-          geometry.SetIndex(new BufferAttribute(indices, 1));` : ''}
-          geometry.ComputeVertexNormals();
-          return geometry;`}
+        Mesh mesh = new Mesh();
+        
+        // Position data
+        List<Vector3> vertices = new List<Vector3>();
+        ${JSON.stringify(positions).match(/-?\\d+\\.\\d+/g)?.map((_, i, arr) => 
+          i % 3 === 0 ? `vertices.Add(new Vector3(${arr[i]}, ${arr[i+1]}, ${arr[i+2]}));` : ''
+        ).filter(Boolean).join('\n        ') || ''}
+        
+        mesh.SetVertices(vertices);
+        
+        ${normals ? `// Normal data
+        List<Vector3> normals = new List<Vector3>();
+        ${JSON.stringify(normals).match(/-?\\d+\\.\\d+/g)?.map((_, i, arr) => 
+          i % 3 === 0 ? `normals.Add(new Vector3(${arr[i]}, ${arr[i+1]}, ${arr[i+2]}));` : ''
+        ).filter(Boolean).join('\n        ') || ''}
+        mesh.SetNormals(normals);` : ''}
+        
+        ${uvs ? `// UV data
+        List<Vector2> uv = new List<Vector2>();
+        ${JSON.stringify(uvs).match(/-?\\d+\\.\\d+/g)?.map((_, i, arr) => 
+          i % 2 === 0 ? `uv.Add(new Vector2(${arr[i]}, ${arr[i+1]}));` : ''
+        ).filter(Boolean).join('\n        ') || ''}
+        mesh.SetUVs(0, uv);` : ''}
+        
+        ${indices ? `// Index data
+        List<int> triangles = new List<int>();
+        ${JSON.stringify(indices).match(/\\d+/g)?.map(index => 
+          `triangles.Add(${index});`
+        ).join('\n        ') || ''}
+        mesh.SetTriangles(triangles, 0);` : ''}
+        
+        return mesh;
     }
-    
-    ${isLargeGeometry ? 
-      `private static float[] CreateGeometryChunk(float[] data, int itemSize)
-      {
-          int chunkSize = 50000;
-          var chunks = new List<float>();
-          for (int i = 0; i < data.Length; i += chunkSize)
-          {
-              int end = Math.Min(i + chunkSize, data.Length);
-              chunks.AddRange(data.Skip(i).Take(end - i));
-          }
-          return chunks.ToArray();
-      }` : ''}
 }
 `;
+
+    case 'cpp':
+      return `#pragma once
+#include <vector>
+#include <glm/glm.hpp>
+
+/**
+ * ${meshName} geometry definition for OpenGL with GLM
+ */
+struct ${meshName}Geometry {
+    std::vector<glm::vec3> vertices;
+    ${normals ? `std::vector<glm::vec3> normals;` : ''}
+    ${uvs ? `std::vector<glm::vec2> uvs;` : ''}
+    ${indices ? `std::vector<unsigned int> indices;` : ''}
+    
+    ${meshName}Geometry() {
+        // Position data
+        float positions[] = {${positions.join(', ')}};
+        for (int i = 0; i < sizeof(positions) / sizeof(float); i += 3) {
+            vertices.push_back(glm::vec3(positions[i], positions[i+1], positions[i+2]));
+        }
+        
+        ${normals ? `// Normal data
+        float normals_data[] = {${(normals || []).join(', ')}};
+        for (int i = 0; i < sizeof(normals_data) / sizeof(float); i += 3) {
+            this->normals.push_back(glm::vec3(normals_data[i], normals_data[i+1], normals_data[i+2]));
+        }` : ''}
+        
+        ${uvs ? `// UV data
+        float uvs_data[] = {${(uvs || []).join(', ')}};
+        for (int i = 0; i < sizeof(uvs_data) / sizeof(float); i += 2) {
+            this->uvs.push_back(glm::vec2(uvs_data[i], uvs_data[i+1]));
+        }` : ''}
+        
+        ${indices ? `// Index data
+        unsigned int indices_data[] = {${(indices || []).join(', ')}};
+        for (int i = 0; i < sizeof(indices_data) / sizeof(unsigned int); i++) {
+            this->indices.push_back(indices_data[i]);
+        }` : ''}
+    }
+    
+    void setupBuffers(unsigned int& VAO, unsigned int& VBO, ${indices ? 'unsigned int& EBO' : ''}) {
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        ${indices ? 'glGenBuffers(1, &EBO);' : ''}
+        
+        glBindVertexArray(VAO);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
+        
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        ${normals ? `// Setup normals
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);` : ''}
+        
+        ${uvs ? `// Setup UVs
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(2);` : ''}
+        
+        ${indices ? `// Setup element buffer
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);` : ''}
+        
+        glBindVertexArray(0);
+    }
+};`;
+
+    case 'go':
+      return `package geometry
+
+import (
+    "github.com/go-gl/mathgl/mgl32"
+)
+
+/**
+ * ${meshName} geometry definition for Go-GL
+ */
+type ${meshName}Geometry struct {
+    Vertices []mgl32.Vec3
+    ${normals ? `Normals []mgl32.Vec3` : ''}
+    ${uvs ? `UVs []mgl32.Vec2` : ''}
+    ${indices ? `Indices []uint32` : ''}
+}
+
+func New${meshName}Geometry() *${meshName}Geometry {
+    geom := &${meshName}Geometry{
+        Vertices: make([]mgl32.Vec3, ${positions.length / 3}),
+        ${normals ? `Normals: make([]mgl32.Vec3, ${normals.length / 3}),` : ''}
+        ${uvs ? `UVs: make([]mgl32.Vec2, ${uvs.length / 2}),` : ''}
+        ${indices ? `Indices: make([]uint32, ${indices.length}),` : ''}
+    }
+    
+    // Position data
+    positions := []float32{${positions.join(', ')}}
+    for i := 0; i < len(positions); i += 3 {
+        geom.Vertices[i/3] = mgl32.Vec3{positions[i], positions[i+1], positions[i+2]}
+    }
+    
+    ${normals ? `// Normal data
+    normals := []float32{${(normals || []).join(', ')}}
+    for i := 0; i < len(normals); i += 3 {
+        geom.Normals[i/3] = mgl32.Vec3{normals[i], normals[i+1], normals[i+2]}
+    }` : ''}
+    
+    ${uvs ? `// UV data
+    uvs := []float32{${(uvs || []).join(', ')}}
+    for i := 0; i < len(uvs); i += 2 {
+        geom.UVs[i/2] = mgl32.Vec2{uvs[i], uvs[i+1]}
+    }` : ''}
+    
+    ${indices ? `// Index data
+    indices := []uint32{${(indices || []).join(', ')}}
+    for i, idx := range indices {
+        geom.Indices[i] = idx
+    }` : ''}
+    
+    return geom
+}
+
+func (g *${meshName}Geometry) SetupBuffers() (uint32, uint32${indices ? ', uint32' : ''}) {
+    var vao, vbo ${indices ? ', ebo' : ''} uint32
+    
+    gl.GenVertexArrays(1, &vao)
+    gl.GenBuffers(1, &vbo)
+    ${indices ? 'gl.GenBuffers(1, &ebo)' : ''}
+    
+    gl.BindVertexArray(vao)
+    gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+    
+    // Convert vertices to float slice
+    vertices := make([]float32, len(g.Vertices)*3)
+    for i, v := range g.Vertices {
+        vertices[i*3] = v.X()
+        vertices[i*3+1] = v.Y()
+        vertices[i*3+2] = v.Z()
+    }
+    
+    gl.BufferData(gl.ARRAY_BUFFER, len(vertices)*4, gl.Ptr(vertices), gl.STATIC_DRAW)
+    
+    // Position attribute
+    gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 3*4, gl.PtrOffset(0))
+    gl.EnableVertexAttribArray(0)
+    
+    ${normals ? `// Normal attribute
+    normals := make([]float32, len(g.Normals)*3)
+    for i, n := range g.Normals {
+        normals[i*3] = n.X()
+        normals[i*3+1] = n.Y()
+        normals[i*3+2] = n.Z()
+    }
+    
+    gl.BufferData(gl.ARRAY_BUFFER, len(normals)*4, gl.Ptr(normals), gl.STATIC_DRAW)
+    gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 3*4, gl.PtrOffset(0))
+    gl.EnableVertexAttribArray(1)` : ''}
+    
+    ${uvs ? `// UV attribute
+    uvs := make([]float32, len(g.UVs)*2)
+    for i, uv := range g.UVs {
+        uvs[i*2] = uv.X()
+        uvs[i*2+1] = uv.Y()
+    }
+    
+    gl.BufferData(gl.ARRAY_BUFFER, len(uvs)*4, gl.Ptr(uvs), gl.STATIC_DRAW)
+    gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 2*4, gl.PtrOffset(0))
+    gl.EnableVertexAttribArray(2)` : ''}
+    
+    ${indices ? `// Element buffer
+    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(g.Indices)*4, gl.Ptr(g.Indices), gl.STATIC_DRAW)` : ''}
+    
+    gl.BindVertexArray(0)
+    return vao, vbo${indices ? ', ebo' : ''}
+}`;
+
+    case 'rust':
+      return `use glam::{Vec3, Vec2};
+use std::rc::Rc;
+use std::cell::RefCell;
+
+/**
+ * ${meshName} geometry definition for Rust using wgpu
+ */
+pub struct ${meshName}Geometry {
+    pub vertices: Vec<Vec3>,
+    ${normals ? `pub normals: Vec<Vec3>,` : ''}
+    ${uvs ? `pub uvs: Vec<Vec2>,` : ''}
+    ${indices ? `pub indices: Vec<u32>,` : ''}
+}
+
+impl ${meshName}Geometry {
+    pub fn new() -> Self {
+        // Position data
+        let positions = [
+            ${Array.from({ length: positions.length / 3 }, (_, i) => 
+              `Vec3::new(${positions[i*3]}, ${positions[i*3+1]}, ${positions[i*3+2]})`
+            ).join(',\n            ')}
+        ];
+        
+        ${normals ? `// Normal data
+        let normals = [
+            ${Array.from({ length: normals.length / 3 }, (_, i) => 
+              `Vec3::new(${normals[i*3]}, ${normals[i*3+1]}, ${normals[i*3+2]})`
+            ).join(',\n            ')}
+        ];` : ''}
+        
+        ${uvs ? `// UV data
+        let uvs = [
+            ${Array.from({ length: uvs.length / 2 }, (_, i) => 
+              `Vec2::new(${uvs[i*2]}, ${uvs[i*2+1]})`
+            ).join(',\n            ')}
+        ];` : ''}
+        
+        ${indices ? `// Index data
+        let indices = vec![
+            ${indices.join(',\n            ')}
+        ];` : ''}
+        
+        Self {
+            vertices: positions.to_vec(),
+            ${normals ? `normals: normals.to_vec(),` : ''}
+            ${uvs ? `uvs: uvs.to_vec(),` : ''}
+            ${indices ? `indices,` : ''}
+        }
+    }
+    
+    pub fn create_vertex_buffer(&self, device: &wgpu::Device) -> wgpu::Buffer {
+        let vertex_data = self.vertices
+            .iter()
+            .flat_map(|v| v.to_array())
+            .collect::<Vec<_>>();
+            
+        device.create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("${meshName} Vertex Buffer"),
+                contents: bytemuck::cast_slice(&vertex_data),
+                usage: wgpu::BufferUsages::VERTEX,
+            }
+        )
+    }
+    
+    ${indices ? `pub fn create_index_buffer(&self, device: &wgpu::Device) -> wgpu::Buffer {
+        device.create_buffer_init(
+            &wgpu::util::BufferInitDescriptor {
+                label: Some("${meshName} Index Buffer"),
+                contents: bytemuck::cast_slice(&self.indices),
+                usage: wgpu::BufferUsages::INDEX,
+            }
+        )
+    }` : ''}
+}`;
+
+    case 'swift':
+      return `import Metal
+import simd
+
+/**
+ * ${meshName} geometry definition for Metal
+ */
+struct ${meshName}Geometry {
+    var vertices: [SIMD3<Float>]
+    ${normals ? `var normals: [SIMD3<Float>]` : ''}
+    ${uvs ? `var uvs: [SIMD2<Float>]` : ''}
+    ${indices ? `var indices: [UInt16]` : ''}
+    
+    init() {
+        // Position data
+        let positions: [Float] = [${positions.join(', ')}]
+        self.vertices = []
+        for i in stride(from: 0, to: positions.count, by: 3) {
+            vertices.append(SIMD3<Float>(positions[i], positions[i+1], positions[i+2]))
+        }
+        
+        ${normals ? `// Normal data
+        let normalsData: [Float] = [${(normals || []).join(', ')}]
+        self.normals = []
+        for i in stride(from: 0, to: normalsData.count, by: 3) {
+            normals.append(SIMD3<Float>(normalsData[i], normalsData[i+1], normalsData[i+2]))
+        }` : ''}
+        
+        ${uvs ? `// UV data
+        let uvsData: [Float] = [${(uvs || []).join(', ')}]
+        self.uvs = []
+        for i in stride(from: 0, to: uvsData.count, by: 2) {
+            uvs.append(SIMD2<Float>(uvsData[i], uvsData[i+1]))
+        }` : ''}
+        
+        ${indices ? `// Index data
+        self.indices = [${(indices || []).join(', ')}]` : ''}
+    }
+    
+    func setupBuffers(device: MTLDevice) -> (
+        vertexBuffer: MTLBuffer,
+        ${normals ? 'normalBuffer: MTLBuffer,' : ''}
+        ${uvs ? 'uvBuffer: MTLBuffer,' : ''}
+        ${indices ? 'indexBuffer: MTLBuffer?' : 'indexBuffer: nil'}
+    ) {
+        let vertexData = vertices.flatMap { [$0.x, $0.y, $0.z] }
+        let vertexBuffer = device.makeBuffer(
+            bytes: vertexData, 
+            length: MemoryLayout<Float>.size * vertexData.count,
+            options: []
+        )!
+        
+        ${normals ? `let normalData = normals.flatMap { [$0.x, $0.y, $0.z] }
+        let normalBuffer = device.makeBuffer(
+            bytes: normalData, 
+            length: MemoryLayout<Float>.size * normalData.count,
+            options: []
+        )!` : ''}
+        
+        ${uvs ? `let uvData = uvs.flatMap { [$0.x, $0.y] }
+        let uvBuffer = device.makeBuffer(
+            bytes: uvData, 
+            length: MemoryLayout<Float>.size * uvData.count,
+            options: []
+        )!` : ''}
+        
+        ${indices ? `let indexBuffer = device.makeBuffer(
+            bytes: indices, 
+            length: MemoryLayout<UInt16>.size * indices.count,
+            options: []
+        )` : ''}
+        
+        return (
+            vertexBuffer: vertexBuffer,
+            ${normals ? 'normalBuffer: normalBuffer,' : ''}
+            ${uvs ? 'uvBuffer: uvBuffer,' : ''}
+            ${indices ? 'indexBuffer: indexBuffer' : 'indexBuffer: nil'}
+        )
+    }
+}`;
+
     default:
       // Fallback to TypeScript for unsupported languages
       return `import * as THREE from 'three';
@@ -589,7 +928,6 @@ export const ${meshName}Geometry = (() => {
 
 /**
  * Generates a mesh component that imports geometry from a separate file
- * Much simpler than before - just references the geometry
  * Component name starts with capital letter as required by React
  */
 function generateMeshComponent(meshName: string, _geometry: THREE.BufferGeometry, displayMode: string, languageId: LanguageId): string {
@@ -597,6 +935,7 @@ function generateMeshComponent(meshName: string, _geometry: THREE.BufferGeometry
   
   switch (languageId) {
     case 'typescript':
+    case 'javascript':
       return `import React from 'react';
 import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
 /**
@@ -607,73 +946,73 @@ import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
 export default function ${meshName}(props: any) {
   return <mesh geometry={${meshName}Geometry} {...props} />;
 }`;
-    case 'javascript':
-      return `import React from 'react';
-import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
-/**
- * ${meshName} component
- * Simple wrapper that uses pre-defined geometry
- * Easy to modify without touching geometry data
- */
-export default function ${meshName}(props) {
-  return <mesh geometry={${meshName}Geometry} {...props} />;
-}`;
+
     case 'python':
-      return `from react import createElement
-from .geometries.${meshName}Geometry import ${meshName}Geometry
+      return `# Note: This is a PyGame/ModernGL implementation
+import moderngl
+from pyglet import window
 
-def ${meshName.toLowerCase()}(props):
-    """${meshName} component
-    Simple wrapper that uses pre-defined geometry
-    Easy to modify without touching geometry data
-    """
-    return createElement('mesh', {**props, 'geometry': ${meshName}Geometry})`;
+class ${meshName}:
+    """${meshName} mesh for ModernGL rendering"""
+    
+    def __init__(self, ctx: moderngl.Context, material=None):
+        self.ctx = ctx
+        self.material = material
+        self.vao = ${meshName}Geometry.create(ctx)
+        
+    def render(self, projection, view):
+        # Bind material if available
+        if self.material:
+            self.material.use()
+            self.material['projection'].write(projection)
+            self.material['view'].write(view)
+        
+        # Render the mesh
+        self.vao.render(moderngl.TRIANGLES)
+`;
+
     case 'java':
-      return `import react.Component;
-import three.BufferGeometry;
-import three.Mesh;
+      return `import com.jme3.scene.Geometry;
+import com.jme3.material.Material;
 
 /**
- * ${meshName} component
- * Simple wrapper that uses pre-defined geometry
- * Easy to modify without touching geometry data
+ * ${meshName} mesh for jMonkeyEngine
  */
-public class ${meshName} extends Component {
-    private BufferGeometry geometry;
+public class ${meshName} {
+    private Geometry geometry;
     
-    public ${meshName}(Object props) {
-        super(props);
-        this.geometry = ${meshName}Geometry.create();
+    public ${meshName}(com.jme3.asset.AssetManager assetManager, Material material) {
+        this.geometry = new Geometry("${meshName}", ${meshName}Geometry.create());
+        this.geometry.setMaterial(material);
     }
     
-    @Override
-    public Object render() {
-        return new Mesh(props, geometry);
+    public Geometry getGeometry() {
+        return geometry;
     }
-}`;
+}
+`;
+
     case 'csharp':
-      return `using React;
-using ThreeJs;
+      return `using UnityEngine;
 
 /**
- * ${meshName} component
- * Simple wrapper that uses pre-defined geometry
- * Easy to modify without touching geometry data
+ * ${meshName} mesh for Unity
  */
-public class ${meshName}
+public class ${meshName} : MonoBehaviour
 {
-    private BufferGeometry Geometry { get; }
+    [SerializeField] private Material material;
     
-    public ${meshName}(object props)
+    void Start()
     {
-        Geometry = ${meshName}Geometry.Create();
+        MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+        meshFilter.mesh = ${meshName}Geometry.Create();
+        
+        MeshRenderer renderer = gameObject.AddComponent<MeshRenderer>();
+        renderer.material = material;
     }
-    
-    public object Render(object props)
-    {
-        return new Mesh(props, Geometry);
-    }
-}`;
+}
+`;
+
     default:
       // Fallback to TypeScript for unsupported languages
       return `import React from 'react';
@@ -695,7 +1034,6 @@ export default function ${meshName}(props) {
  */
 function generateMaterialComponent(materialName: string, material: THREE.Material, displayMode: string, languageId: LanguageId): string {
   const lang = LANGUAGES[languageId];
-  
   // Base material properties
   let materialType = 'MeshStandardMaterial';
   let properties: string[] = [];
@@ -754,16 +1092,6 @@ function generateMaterialComponent(materialName: string, material: THREE.Materia
   
   switch (languageId) {
     case 'typescript':
-      return `import * as THREE from 'three';
-/**
- * ${materialName} material
- * Reusable material definition
- */
-export default function ${materialName}() {
-  return new THREE.${materialType}({
-    ${properties.join(',\n    ')}
-  });
-}`;
     case 'javascript':
       return `import * as THREE from 'three';
 /**
@@ -775,53 +1103,131 @@ export default function ${materialName}() {
     ${properties.join(',\n    ')}
   });
 }`;
-    case 'python':
-      return `from three import ${materialType}
 
-def ${materialName.toLowerCase()}():
-    """${materialName} material
-    Reusable material definition
-    """
-    return ${materialType}(
-        ${properties.map(prop => prop.replace(': ', '= ')).join(',\n        ')}
-    )`;
+    case 'python':
+      return `# Note: This is a ModernGL implementation
+import moderngl
+
+class ${materialName}:
+    """${materialName} material for ModernGL"""
+    
+    def __init__(self, ctx: moderngl.Context):
+        self.ctx = ctx
+        self.prog = ctx.program(
+            vertex_shader='''
+                #version 330
+                
+                in vec3 in_position;
+                ${normals ? 'in vec3 in_normal;' : ''}
+                ${uvs ? 'in vec2 in_uv;' : ''}
+                
+                uniform mat4 projection;
+                uniform mat4 view;
+                
+                out vec3 v_position;
+                ${normals ? 'out vec3 v_normal;' : ''}
+                ${uvs ? 'out vec2 v_uv;' : ''}
+                
+                void main() {
+                    v_position = in_position;
+                    ${normals ? 'v_normal = in_normal;' : ''}
+                    ${uvs ? 'v_uv = in_uv;' : ''}
+                    gl_Position = projection * view * vec4(in_position, 1.0);
+                }
+            ''',
+            fragment_shader='''
+                #version 330
+                
+                in vec3 v_position;
+                ${normals ? 'in vec3 v_normal;' : ''}
+                ${uvs ? 'in vec2 v_uv;' : ''}
+                
+                out vec4 f_color;
+                
+                void main() {
+                    ${displayMode === 'wireframe' ? 
+                      'f_color = vec4(0.0, 0.0, 0.0, 0.2);' :
+                      displayMode === 'normals' ?
+                      'f_color = vec4(normalize(v_normal) * 0.5 + 0.5, 1.0);' :
+                      displayMode === 'points' ?
+                      'f_color = vec4(0.0, 1.0, 0.0, 1.0);' :
+                      'f_color = vec4(0.5, 0.5, 0.5, 1.0);'}
+                }
+            '''
+        )
+        self.projection = self.prog['projection']
+        self.view = self.prog['view']
+    
+    def use(self):
+        self.prog.use()
+`;
+
     case 'java':
-      return `import three.${materialType};
+      return `import com.jme3.material.Material;
+import com.jme3.asset.AssetManager;
 
 /**
- * ${materialName} material
- * Reusable material definition
+ * ${materialName} material for jMonkeyEngine
  */
 public class ${materialName} {
-    public static ${materialType} create() {
-        return new ${materialType}(
-            ${properties.map(prop => {
-              const [key, value] = prop.split(': ');
-              return `${key} = ${value}`;
-            }).join(',\n            ')}
-        );
+    private Material material;
+    
+    public ${materialName}(AssetManager assetManager) {
+        material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        ${displayMode === 'wireframe' ? 
+          'material.setBoolean("Wireframe", true);' :
+          displayMode === 'normals' ?
+          'material = new Material(assetManager, "Common/MatDefs/Misc/Normal.frag.glsl");' :
+          displayMode === 'points' ?
+          'material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");' :
+          `// Standard material properties
+          material.setColor("Diffuse", new ColorRGBA(0.5f, 0.5f, 0.5f, 1.0f));
+          material.setColor("Specular", new ColorRGBA(0.2f, 0.2f, 0.2f, 1.0f));
+          material.setFloat("Shininess", 64.0f);`}
     }
-}`;
+    
+    public Material getMaterial() {
+        return material;
+    }
+}
+`;
+
     case 'csharp':
-      return `using ThreeJs;
+      return `using UnityEngine;
 
 /**
- * ${materialName} material
- * Reusable material definition
+ * ${materialName} material for Unity
  */
-public class ${materialName}
+public class ${materialName} : MonoBehaviour
 {
-    public static ${materialType} Create()
+    private Material material;
+    
+    void Start()
     {
-        return new ${materialType}
-        {
-            ${properties.map(prop => {
-              const [key, value] = prop.split(': ');
-              return key + " = " + value;
-            }).join(',\n            ')}
-        };
+        material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        
+        ${displayMode === 'wireframe' ? 
+          `material.SetInt("_Wireframe", 1);
+          material.SetColor("_Color", new Color(0f, 0f, 0f, 0.2f));` :
+          displayMode === 'normals' ?
+          `material = new Material(Shader.Find("Universal Render Pipeline/Normal"));
+          material.SetColor("_Color", Color.white);` :
+          displayMode === 'points' ?
+          `material = new Material(Shader.Find("Particles/Standard Unlit"));
+          material.SetColor("_BaseColor", Color.green);` :
+          `// Standard material properties
+          material.SetColor("_BaseColor", new Color(0.5f, 0.5f, 0.5f, 1.0f));
+          material.SetFloat("_Metallic", 0.1f);
+          material.SetFloat("_Smoothness", 0.8f);`}
     }
-}`;
+    
+    public Material GetMaterial()
+    {
+        return material;
+    }
+}
+`;
+
     default:
       // Fallback to TypeScript for unsupported languages
       return `import * as THREE from 'three';
@@ -850,32 +1256,22 @@ function generateIndexComponent(
 ): string {
   const lang = LANGUAGES[languageId];
   
-  // Generate imports
-  const meshImports = meshes.map(mesh => 
-    lang.import === 'import' ? 
-      `import ${mesh.name} from './meshes/${mesh.name}';` :
-      lang.import === 'require' ?
-        `const ${mesh.name} = require('./meshes/${mesh.name}');` :
-        `${lang.import} '${mesh.name}' from './meshes/${mesh.name}';`
-  ).join('\n');
-  
-  const materialImports = materials.map(material => 
-    lang.import === 'import' ? 
-      `import ${material.name} from './materials/${material.name}';` :
-      lang.import === 'require' ?
-        `const ${material.name} = require('./materials/${material.name}');` :
-        `${lang.import} '${material.name}' from './materials/${material.name}';`
-  ).join('\n');
-  
-  const meshElements = meshes.map((mesh, i) => {
-    const material = materials[i % materials.length];
-    return lang.class === 'class' ?
-      `      <${mesh.name} material={${material.name}.create()} />` :
-      `      <${mesh.name} material={${material.name}()} />`;
-  }).join('\n');
-  
   switch (languageId) {
     case 'typescript':
+    case 'javascript':
+      // Generate imports
+      const meshImports = meshes.map(mesh => 
+        `import ${mesh.name} from './meshes/${mesh.name}';`
+      ).join('\n');
+      const materialImports = materials.map(material => 
+        `import ${material.name} from './materials/${material.name}';`
+      ).join('\n');
+      
+      const meshElements = meshes.map((mesh, i) => {
+        const material = materials[i % materials.length];
+        return `      <${mesh.name} material={${material.name}()} />`;
+      }).join('\n');
+      
       return `import React, { useRef } from 'react';
 import type { GroupProps } from '@react-three/fiber';
 ${meshImports}
@@ -892,96 +1288,104 @@ ${meshElements}
     </group>
   );
 }`;
-    case 'javascript':
-      return `import React, { useRef } from 'react';
-${meshImports}
-${materialImports}
-/**
- * ${componentName} component
- * Main component that assembles all mesh and material parts
- */
-export default function ${componentName}(props) {
-  const ref = useRef();
-  return (
-    <group ref={ref} {...props}>
-${meshElements}
-    </group>
-  );
-}`;
+
     case 'python':
-      return `from react import createElement, useRef
-from .meshes import ${meshes.map(m => m.name).join(', ')}
-from .materials import ${materials.map(m => m.name).join(', ')}
+      return `# Note: This is a ModernGL/Pyglet implementation
+import pyglet
+import moderngl
+import numpy as np
+from pyglet.window import key
 
-def ${componentName.toLowerCase()}(props):
-    """${componentName} component
-    Main component that assembles all mesh and material parts
-    """
-    ref = useRef()
-    return createElement('group', {**props, 'ref': ref},
-        ${meshes.map((mesh, i) => {
-          const material = materials[i % materials.length];
-          return `createElement(${mesh.name}, {'material': ${material.name}()})`;
-        }).join(',\n        ')})
+${meshes.map(mesh => `from .meshes.${mesh.name} import ${mesh.name}`).join('\n')}
+${materials.map(material => `from .materials.${material.name} import ${material.name}`).join('\n')}
+
+class ${componentName}:
+    """${componentName} component for ModernGL"""
+    
+    def __init__(self, ctx: moderngl.Context):
+        self.ctx = ctx
+        self.meshes = [
+            ${meshes.map((mesh, i) => {
+              const material = materials[i % materials.length];
+              return `${mesh.name}(ctx, ${material.name}(ctx))`;
+            }).join(',\n            ')}
+        ]
+        self.projection = None
+        self.view = None
+        
+    def set_matrices(self, projection, view):
+        self.projection = projection
+        self.view = view
+        
+    def render(self):
+        for mesh in self.meshes:
+            mesh.render(self.projection, self.view)
 `;
+
     case 'java':
-      return `import react.Component;
-import react.Ref;
-import three.Group;
+      return `import com.jme3.app.SimpleApplication;
+import com.jme3.scene.Node;
+import com.jme3.asset.AssetManager;
+import com.jme3.material.Material;
 
 /**
- * ${componentName} component
- * Main component that assembles all mesh and material parts
+ * ${componentName} component for jMonkeyEngine
  */
-public class ${componentName} extends Component {
-    private Ref ref;
-    
-    public ${componentName}(Object props) {
-        super(props);
-        this.ref = useRef();
+public class ${componentName} extends Node {
+    public ${componentName}(AssetManager assetManager) {
+        super("${componentName}");
+        
+        // Create materials
+        ${materials.map((material, i) => 
+          `Material material${i} = new ${material.name}(assetManager).getMaterial();`
+        ).join('\n        ')}
+        
+        // Create meshes
+        ${meshes.map((mesh, i) => 
+          `this.attachChild(new ${mesh.name}(assetManager, material${i % materials.length}));`
+        ).join('\n        ')}
     }
-    
-    @Override
-    public Object render() {
-        return new Group(ref, props,
-            ${meshes.map((mesh, i) => {
-              const material = materials[i % materials.length];
-              return `new ${mesh.name}(new ${material.name}().create())`;
-            }).join(',\n            ')});
-    }
-}`;
+}
+`;
+
     case 'csharp':
-      return `using React;
-using ThreeJs;
+      return `using UnityEngine;
+using System.Collections.Generic;
 
 /**
- * ${componentName} component
- * Main component that assembles all mesh and material parts
+ * ${componentName} component for Unity
  */
-public class ${componentName}
+public class ${componentName} : MonoBehaviour
 {
-    private Ref Ref { get; }
+    private List<GameObject> meshes = new List<GameObject>();
     
-    public ${componentName}(object props)
+    void Start()
     {
-        Ref = useRef();
+        // Create materials
+        ${materials.map((material, i) => 
+          `var material${i} = new ${material.name}().GetMaterial();`
+        ).join('\n        ')}
+        
+        // Create meshes
+        ${meshes.map((mesh, i) => 
+          `var ${mesh.name.ToLower()}Obj = new GameObject("${mesh.name}");
+          ${mesh.name.ToLower()}Obj.transform.parent = transform;
+          var ${mesh.name}Component = ${mesh.name.ToLower()}Obj.AddComponent<${mesh.name}>();
+          meshes.Add(${mesh.name.ToLower()}Obj);`
+        ).join('\n        ')}
     }
-    
-    public object Render(object props)
-    {
-        return new Group(Ref, props,
-            ${meshes.map((mesh, i) => {
-              const material = materials[i % materials.length];
-              return `new ${mesh.name}(props, ${material.name}.Create())`;
-            }).join(",\n            ")});
-    }
-}`;
+}
+`;
+
     default:
       // Fallback to TypeScript for unsupported languages
       return `import React, { useRef } from 'react';
 import type { GroupProps } from '@react-three/fiber';
-${meshImports}
-${materialImports}
+// Mesh imports
+${meshes.map(mesh => `import ${mesh.name} from './meshes/${mesh.name}';`).join('\n')}
+// Material imports
+${materials.map(material => `import ${material.name} from './materials/${material.name}';`).join('\n')}
+
 /**
  * ${componentName} component
  * Main component that assembles all mesh and material parts
@@ -990,7 +1394,10 @@ export default function ${componentName}(props: GroupProps) {
   const ref = useRef();
   return (
     <group ref={ref} {...props}>
-${meshElements}
+      ${meshes.map((mesh, i) => {
+        const material = materials[i % materials.length];
+        return `<${mesh.name} material={${material.name}()} />`;
+      }).join('\n      ')}
     </group>
   );
 }`;
@@ -1006,39 +1413,6 @@ function generateExamplePage(componentName: string, languageId: LanguageId): str
   
   switch (languageId) {
     case 'typescript':
-      return `import React from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment } from '@react-three/drei';
-import ${componentName} from '@/components/${componentName}';
-/**
- * Example page demonstrating how to use the ${componentName} component
- */
-export default function ${componentName}Page() {
-  return (
-    <div className="w-full h-screen">
-      <Canvas 
-        camera={{ position: [0, 0, 5], fov: 50 }}
-        gl={{ 
-          powerPreference: "high-performance",
-          antialias: true,
-          alpha: true
-        }}
-      >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
-        <${componentName} />
-        <OrbitControls 
-          enableZoom 
-          enablePan 
-          enableRotate 
-          minDistance={0.1}
-          maxDistance={100}
-        />
-        <Environment preset="studio" />
-      </Canvas>
-    </div>
-  );
-}`;
     case 'javascript':
       return `import React from 'react';
 import { Canvas } from '@react-three/fiber';
@@ -1073,114 +1447,164 @@ export default function ${componentName}Page() {
     </div>
   );
 }`;
+
     case 'python':
-      return `from react import createElement
-from three import Canvas, ambientLight, pointLight, Environment
-from three.drei import OrbitControls
-from components.${componentName.toLowerCase()} import ${componentName}
+      return `# Note: This is a ModernGL/Pyglet implementation
+import pyglet
+import moderngl
+import numpy as np
+from pyglet.window import key
+from pyrr import Matrix44
+from .${componentName} import ${componentName}
 
-def ${componentName}Page(props):
-    """Example page demonstrating how to use the ${componentName} component"""
-    return createElement('div', {'className': 'w-full h-screen'},
-        createElement(Canvas, {
-            'camera': {'position': [0, 0, 5], 'fov': 50},
-            'gl': {
-                'powerPreference': "high-performance",
-                'antialias': True,
-                'alpha': True
-            }
-        },
-            ambientLight({'intensity': 0.5}),
-            pointLight({'position': [10, 10, 10]}),
-            ${componentName}(),
-            OrbitControls({
-                'enableZoom': True,
-                'enablePan': True,
-                'enableRotate': True,
-                'minDistance': 0.1,
-                'maxDistance': 100
-            }),
-            Environment({'preset': "studio"})
+class ${componentName}Page:
+    """Example page for ModernGL implementation"""
+    
+    def __init__(self, width=800, height=600):
+        self.window = pyglet.window.Window(width, height, caption='${componentName} Viewer')
+        self.ctx = self.window.ctx
+        
+        # Create perspective projection
+        self.projection = Matrix44.perspective_projection(50, width/height, 0.1, 1000)
+        
+        # Create view matrix
+        self.view = Matrix44.look_at(
+            [0, 0, 5],  # Camera position
+            [0, 0, 0],  # Look at point
+            [0, 1, 0],  # Up vector
         )
-    )`;
+        
+        # Create the 3D component
+        self.scene = ${componentName}(self.ctx)
+        self.scene.set_matrices(self.projection, self.view)
+        
+        # Set up event handlers
+        self.window.event(self.on_draw)
+        self.window.event(self.on_resize)
+        self.window.event(self.on_key_press)
+        
+        # Animation state
+        self.rotation = 0
+        
+    def on_draw(self):
+        self.window.clear()
+        self.ctx.enable(moderngl.DEPTH_TEST)
+        
+        # Update rotation
+        self.rotation += 0.5
+        
+        # Render the scene
+        self.scene.render()
+        
+    def on_resize(self, width, height):
+        self.projection = Matrix44.perspective_projection(50, width/height, 0.1, 1000)
+        self.scene.set_matrices(self.projection, self.view)
+        
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.ESCAPE:
+            pyglet.app.exit()
+            
+    def run(self):
+        pyglet.app.run()
+`;
+
     case 'java':
-      return `import react.Component;
-import three.Canvas;
-import three.ambientLight;
-import three.pointLight;
-import three.Environment;
-import drei.OrbitControls;
-import components.${componentName}.${componentName};
+      return `import com.jme3.app.SimpleApplication;
+import com.jme3.light.AmbientLight;
+import com.jme3.light.DirectionalLight;
+import com.jme3.math.ColorRGBA;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
+import com.jme3.system.AppSettings;
 
 /**
- * Example page demonstrating how to use the ${componentName} component
+ * Example application demonstrating how to use the ${componentName} component
  */
-public class ${componentName}Page extends Component {
+public class ${componentName}App extends SimpleApplication {
+    public static void main(String[] args) {
+        ${componentName}App app = new ${componentName}App();
+        AppSettings settings = new AppSettings(true);
+        settings.setTitle("${componentName} Viewer");
+        settings.setResolution(800, 600);
+        app.setSettings(settings);
+        app.start();
+    }
+
     @Override
-    public Object render() {
-        return new div(
-            new Canvas(
-                new Canvas.Properties()
-                    .camera(new CameraProperties().position(new float[]{0, 0, 5}).fov(50))
-                    .gl(new GLProperties()
-                        .powerPreference("high-performance")
-                        .antialias(true)
-                        .alpha(true)),
-                new ambientLight(new LightProperties().intensity(0.5)),
-                new pointLight(new LightProperties().position(new float[]{10, 10, 10})),
-                new ${componentName}(),
-                new OrbitControls(new OrbitControls.Properties()
-                    .enableZoom(true)
-                    .enablePan(true)
-                    .enableRotate(true)
-                    .minDistance(0.1f)
-                    .maxDistance(100f)),
-                new Environment(new Environment.Properties().preset("studio"))
-            )
-        );
+    public void simpleInitApp() {
+        // Create the scene
+        Node scene = new ${componentName}(assetManager);
+        rootNode.attachChild(scene);
+        
+        // Add lighting
+        AmbientLight ambient = new AmbientLight();
+        ambient.setColor(ColorRGBA.Gray);
+        rootNode.addLight(ambient);
+        
+        DirectionalLight sun = new DirectionalLight();
+        sun.setDirection(new Vector3f(1, 1, 1).normalizeLocal());
+        sun.setColor(ColorRGBA.White);
+        rootNode.addLight(sun);
+        
+        // Set up camera
+        cam.setLocation(new Vector3f(0, 0, 5));
+        cam.lookAt(Vector3f.ZERO, Vector3f.UNIT_Y);
     }
-}`;
+}
+`;
+
     case 'csharp':
-      return `using React;
-using ThreeJs;
-using Drei;
+      return `using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 /**
- * Example page demonstrating how to use the ${componentName} component
+ * Example scene demonstrating how to use the ${componentName} component
  */
-public class ${componentName}Page
+public class ${componentName}Example : MonoBehaviour
 {
-    public object Render()
+    [SerializeField] private ${componentName} model;
+    [SerializeField] private float rotationSpeed = 30f;
+    
+    private void Start()
     {
-        return new div(new {
-            ClassName = "w-full h-screen"
-        },
-            new Canvas(new {
-                Camera = new {
-                    Position = new[] { 0f, 0f, 5f },
-                    Fov = 50f
-                },
-                Gl = new {
-                    PowerPreference = "high-performance",
-                    Antialias = true,
-                    Alpha = true
-                }
-            },
-                new ambientLight(new { Intensity = 0.5f }),
-                new pointLight(new { Position = new[] { 10f, 10f, 10f } }),
-                new ${componentName}(),
-                new OrbitControls(new {
-                    EnableZoom = true,
-                    EnablePan = true,
-                    EnableRotate = true,
-                    MinDistance = 0.1f,
-                    MaxDistance = 100f
-                }),
-                new Environment(new { Preset = "studio" })
-            )
-        );
+        // Ensure we have a model reference
+        if (model == null)
+        {
+            model = FindObjectOfType<${componentName}>();
+        }
+        
+        // Create lighting
+        CreateLighting();
     }
-}`;
+    
+    private void CreateLighting()
+    {
+        // Create main directional light
+        var lightObj = new GameObject("Main Light");
+        var light = lightObj.AddComponent<Light>();
+        light.type = LightType.Directional;
+        light.color = Color.white;
+        light.intensity = 1f;
+        lightObj.transform.rotation = Quaternion.Euler(50, -30, 0);
+        
+        // Create ambient light
+        RenderSettings.ambientLight = new Color(0.5f, 0.5f, 0.5f);
+        RenderSettings.ambientIntensity = 0.8f;
+    }
+    
+    private void Update()
+    {
+        // Rotate the model
+        if (model != null)
+        {
+            model.transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
+        }
+    }
+}
+`;
+
     default:
       // Fallback to TypeScript for unsupported languages
       return `import React from 'react';
@@ -1217,22 +1641,4 @@ export default function ${componentName}Page() {
   );
 }`;
   }
-}
-
-/**
- * Sanitizes names to be valid JavaScript identifiers
- */
-function sanitizeName(name: string): string {
-  // Replace invalid characters with underscores
-  let safeName = name.replace(/[^a-zA-Z0-9_]/g, '_');
-  // Ensure it starts with a letter
-  if (!/^[a-zA-Z_]/.test(safeName)) {
-    safeName = '_' + safeName;
-  }
-  // Handle reserved keywords
-  const reservedKeywords = ['default', 'function', 'class', 'export', 'import', 'let', 'const', 'var'];
-  if (reservedKeywords.includes(safeName.toLowerCase())) {
-    safeName = '_' + safeName;
-  }
-  return safeName;
 }
