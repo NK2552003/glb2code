@@ -18,16 +18,16 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import JSZip from "jszip";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { saveAs } from "file-saver";
-import { generateProjectStructure } from "@/app/lib/glb-converter";
 import type {
   ProjectStructure
-} from "@/app/types/glb-convertor";
-import UploadButton from "../components/uploadbutton";
-import { LanguageId, LANGUAGES } from "../types/constant";
-import CodeEditor from "../components/code-editor";
-import LanguageSelector from "../components/language-selector";
-import FileTree from "../components/file-tree";
-import ModelPreview from "../components/model-preview";
+} from "@/types/glb-convertor";
+import UploadButton from "@/components/uploadbutton";
+import { LanguageId, LANGUAGES } from "@/types/constant";
+import CodeEditor from "@/components/code-editor";
+import LanguageSelector from "@/components/language-selector";
+import FileTree from "@/components/file-tree";
+import ModelPreview from "@/components/model-preview";
+import generateProjectStructure from "@/lib/generator/generateProjectStructure";
 
 
 export default function GLBConverter() {
