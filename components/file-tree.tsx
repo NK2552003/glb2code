@@ -1,6 +1,33 @@
-import { ChevronDown, ChevronRight, Folder, FileText, File} from "lucide-react";
-import { LanguageId, LANGUAGES } from "@/types/constant";
-import { ProjectStructure } from "@/types/glb-convertor";
+'use client';
+
+import React from 'react';
+import { ChevronDown, ChevronRight, FileIcon, FolderIcon } from 'lucide-react';
+import type { ProjectStructure } from '@/types/glb-convertor';
+import { LANGUAGES, type LanguageId } from '@/types/constant';
+
+function Row({
+  icon,
+  label,
+  selected,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  selected?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={`flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm ${
+        selected ? 'bg-fuchsia-500/15 text-fuchsia-200' : 'text-slate-300 hover:bg-white/5 hover:text-white'
+      }`}
+    >
+      {icon}
+      <span className="truncate">{label}</span>
+    </div>
+  );
+}
 
 export default function FileTree({
   projectStructure,
@@ -9,227 +36,164 @@ export default function FileTree({
   expandedFolders,
   toggleFolder,
   activeFile,
+  componentName,
 }: {
-  projectStructure: ProjectStructure | null;
+  projectStructure: ProjectStructure;
   selectedLanguage: LanguageId;
   onSelectFile: (path: string, content: string) => void;
   expandedFolders: Record<string, boolean>;
   toggleFolder: (folder: string) => void;
   activeFile: string | null;
+  componentName: string;
 }) {
-  if (!projectStructure) return null;
-
-  const lang = LANGUAGES.find((l) => l.id === selectedLanguage);
-  if (!lang) return null;
-
-  const getIcon = (fileName: string) => {
-    if (fileName.includes("Geometry")) return "text-cyan-400";
-    if (fileName.includes("index")) return "text-green-400";
-    if (fileName.includes("meshes")) return "text-cyan-400";
-    if (fileName.includes("geometries")) return "text-cyan-400";
-    if (fileName.includes("materials")) return "text-orange-400";
-    if (fileName.includes("page")) return "text-purple-400";
-    return "text-white";
-  };
+  const lang = LANGUAGES.find((l) => l.id === selectedLanguage)!;
 
   return (
-    <div className="text-sm">
-      <div
-        className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-        onClick={() => toggleFolder("components")}
-      >
-        {expandedFolders.components ? (
-          <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-        ) : (
-          <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-        )}
-        <Folder className="w-4 h-4 mr-2 text-yellow-400" />
-        <span className="text-[#C5C5C5]">components</span>
-      </div>
+    <div className="space-y-1">
+      {/* components */}
+      <div>
+        <div
+          className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+          onClick={() => toggleFolder('components')}
+        >
+          {expandedFolders.components ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          <span>components</span>
+        </div>
 
-      {expandedFolders.components && (
-        <div className="pl-4">
-          <div
-            className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-            onClick={() => toggleFolder("componentName")}
-          >
-            {expandedFolders.componentName ? (
-              <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-            ) : (
-              <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-            )}
-            <Folder className="w-4 h-4 mr-2 text-blue-400" />
-            <span className="text-[#C5C5C5]">Model</span>
-          </div>
-
-          {expandedFolders.componentName && (
-            <div className="pl-4">
-              <div
-                className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
-                  activeFile === "index" ? "bg-[#2A2D2E]" : ""
-                }`}
-                onClick={() =>
-                  onSelectFile("index", projectStructure.indexContent)
-                }
-              >
-                <FileText className={`w-4 h-4 mr-2 ${getIcon("index")}`} />
-                <span className="text-[#C5C5C5]">index.{lang.extension}</span>
+        {expandedFolders.components && (
+          <div className="ml-4">
+            {/* Component folder */}
+            <div className="mb-1">
+              <div className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+                   onClick={() => toggleFolder('componentName')}>
+                {expandedFolders.componentName ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                <FolderIcon className="h-4 w-4 text-amber-400" />
+                <span>{componentName}</span>
               </div>
 
-              <div
-                className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-                onClick={() => toggleFolder("geometries")}
-              >
-                {expandedFolders.geometries ? (
-                  <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-                ) : (
-                  <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-                )}
-                <Folder className="w-4 h-4 mr-2 text-cyan-400" />
-                <span className="text-[#C5C5C5]">geometries</span>
-              </div>
+              {expandedFolders.componentName && (
+                <div className="ml-4 space-y-1">
+                  <Row
+                    icon={<FileIcon className="h-4 w-4 text-slate-400" />}
+                    label={`index.${lang.extension}`}
+                    selected={activeFile === 'index'}
+                    onClick={() => onSelectFile('index', projectStructure.indexContent)}
+                  />
 
-              {expandedFolders.geometries && (
-                <div className="pl-4">
-                  {projectStructure.geometries?.map((geometry, i) => (
+                  {/* geometries */}
+                  <div>
                     <div
-                      key={i}
-                      className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
-                        activeFile === `geometry-${i}` ? "bg-[#2A2D2E]" : ""
-                      }`}
-                      onClick={() =>
-                        onSelectFile(`geometry-${i}`, geometry.content)
-                      }
+                      className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+                      onClick={() => toggleFolder('geometries')}
                     >
-                      <File className={`w-4 h-4 mr-2 ${getIcon(geometry.name)}`} />
-                      <span className="text-[#C5C5C5]">
-                        {geometry.name}Geometry.{lang.geometryExtension}
-                      </span>
+                      {expandedFolders.geometries ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                      <span>geometries</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                    {expandedFolders.geometries && (
+                      <div className="ml-4">
+                        {projectStructure.geometries?.length ? (
+                          projectStructure.geometries.map((g) => (
+                            <Row
+                              key={g.name}
+                              icon={<FileIcon className="h-4 w-4 text-slate-400" />}
+                              label={`${g.name}Geometry.${lang.geometryExtension}`}
+                              selected={activeFile === `geometry:${g.name}`}
+                              onClick={() => onSelectFile(`geometry:${g.name}`, g.content)}
+                            />
+                          ))
+                        ) : (
+                          <div className="px-2 py-1 text-xs text-slate-500">Empty</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
-              <div
-                className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-                onClick={() => toggleFolder("meshes")}
-              >
-                {expandedFolders.meshes ? (
-                  <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-                ) : (
-                  <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-                )}
-                <Folder className="w-4 h-4 mr-2 text-cyan-400" />
-                <span className="text-[#C5C5C5]">meshes</span>
-              </div>
-
-              {expandedFolders.meshes && (
-                <div className="pl-4">
-                  {projectStructure.meshes.map((mesh, i) => (
+                  {/* meshes */}
+                  <div>
                     <div
-                      key={i}
-                      className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
-                        activeFile === `mesh-${i}` ? "bg-[#2A2D2E]" : ""
-                      }`}
-                      onClick={() => onSelectFile(`mesh-${i}`, mesh.content)}
+                      className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+                      onClick={() => toggleFolder('meshes')}
                     >
-                      <File className={`w-4 h-4 mr-2 ${getIcon(mesh.name)}`} />
-                      <span className="text-[#C5C5C5]">
-                        {mesh.name}.{lang.extension}
-                      </span>
+                      {expandedFolders.meshes ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                      <span>meshes</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                    {expandedFolders.meshes && (
+                      <div className="ml-4">
+                        {projectStructure.meshes.map((m) => (
+                          <Row
+                            key={m.name}
+                            icon={<FileIcon className="h-4 w-4 text-slate-400" />}
+                            label={`${m.name}.${lang.extension}`}
+                            selected={activeFile === `mesh:${m.name}`}
+                            onClick={() => onSelectFile(`mesh:${m.name}`, m.content)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-              <div
-                className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-                onClick={() => toggleFolder("materials")}
-              >
-                {expandedFolders.materials ? (
-                  <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-                ) : (
-                  <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-                )}
-                <Folder className="w-4 h-4 mr-2 text-orange-400" />
-                <span className="text-[#C5C5C5]">materials</span>
-              </div>
-
-              {expandedFolders.materials && (
-                <div className="pl-4">
-                  {projectStructure.materials.map((material, i) => (
+                  {/* materials */}
+                  <div>
                     <div
-                      key={i}
-                      className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
-                        activeFile === `material-${i}` ? "bg-[#2A2D2E]" : ""
-                      }`}
-                      onClick={() =>
-                        onSelectFile(`material-${i}`, material.content)
-                      }
+                      className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+                      onClick={() => toggleFolder('materials')}
                     >
-                      <File
-                        className={`w-4 h-4 mr-2 ${getIcon(material.name)}`}
-                      />
-                      <span className="text-[#C5C5C5]">
-                        {material.name}.{lang.extension}
-                      </span>
+                      {expandedFolders.materials ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                      <span>materials</span>
                     </div>
-                  ))}
+                    {expandedFolders.materials && (
+                      <div className="ml-4">
+                        {projectStructure.materials.map((m) => (
+                          <Row
+                            key={m.name}
+                            icon={<FileIcon className="h-4 w-4 text-slate-400" />}
+                            label={`${m.name}.${lang.extension}`}
+                            selected={activeFile === `material:${m.name}`}
+                            onClick={() => onSelectFile(`material:${m.name}`, m.content)}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-          )}
-        </div>
-      )}
-
-      <div
-        className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-        onClick={() => toggleFolder("app")}
-      >
-        {expandedFolders.app ? (
-          <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-        ) : (
-          <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
+          </div>
         )}
-        <Folder className="w-4 h-4 mr-2 text-purple-400" />
-        <span className="text-[#C5C5C5]">app</span>
       </div>
 
-      {expandedFolders.app && (
-        <div className="pl-4">
-          <div
-            className="flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded"
-            onClick={() => toggleFolder("modelPage")}
-          >
-            {expandedFolders.modelPage ? (
-              <ChevronDown className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-            ) : (
-              <ChevronRight className="w-3 h-3 mr-1 text-[#C5C5C5]" />
-            )}
-            <Folder className="w-4 h-4 mr-2 text-blue-400" />
-            <span className="text-[#C5C5C5]">model-page</span>
-          </div>
-
-          {expandedFolders.modelPage && (
-            <div className="pl-4">
-              <div
-                className={`flex items-center px-3 py-1 hover:bg-[#2A2D2E] cursor-pointer rounded ${
-                  activeFile === "examplePage" ? "bg-[#2A2D2E]" : ""
-                }`}
-                onClick={() =>
-                  onSelectFile(
-                    "examplePage",
-                    projectStructure.examplePageContent
-                  )
-                }
-              >
-                <FileText className={`w-4 h-4 mr-2 ${getIcon("page")}`} />
-                <span className="text-[#C5C5C5]">page.{lang.extension}</span>
-              </div>
-            </div>
-          )}
+      {/* app */}
+      <div>
+        <div
+          className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+          onClick={() => toggleFolder('app')}
+        >
+          {expandedFolders.app ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          <span>app</span>
         </div>
-      )}
+        {expandedFolders.app && (
+          <div className="ml-4">
+            <div
+              className="flex items-center gap-1 px-2 py-1.5 text-xs uppercase tracking-wider text-slate-400 cursor-pointer"
+              onClick={() => toggleFolder('modelPage')}
+            >
+              {expandedFolders.modelPage ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+              <FolderIcon className="h-4 w-4 text-amber-400" />
+              <span>{`${componentName.toLowerCase()}-page`}</span>
+            </div>
+            {expandedFolders.modelPage && (
+              <div className="ml-4">
+                <Row
+                  icon={<FileIcon className="h-4 w-4 text-slate-400" />}
+                  label={`page.${lang.extension}`}
+                  selected={activeFile === 'examplePage'}
+                  onClick={() => onSelectFile('examplePage', projectStructure.examplePageContent)}
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

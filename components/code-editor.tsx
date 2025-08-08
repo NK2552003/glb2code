@@ -1,5 +1,13 @@
-import { Copy } from "lucide-react";
-import { LanguageId, LANGUAGES } from "@/types/constant";
+'use client';
+
+import React, { useEffect, useMemo, useState } from 'react';
+
+import prettier from 'prettier/standalone';
+import babelPlugin from 'prettier/plugins/babel';
+import typescriptPlugin from 'prettier/plugins/typescript';
+
+import Editor from '@monaco-editor/react';
+import type { LanguageId } from '@/types/constant';
 
 export default function CodeEditor({
   code,
@@ -8,111 +16,76 @@ export default function CodeEditor({
   code: string;
   languageId: LanguageId;
 }) {
+  const [formatted, setFormatted] = useState(code);
 
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text).then(() => {
-    console.log("Copied to clipboard");
-  });
-};
+  const parser = useMemo(
+    () => (languageId === 'typescript' ? 'typescript' : 'babel'),
+    [languageId]
+  );
 
-  const language = LANGUAGES.find((lang) => lang.id === languageId);
-  const lines = code.split("\n");
-  const getSyntaxClass = (line: string): string => {
-    if (line.trim().startsWith("//") || line.trim().startsWith("#")) {
-      return "text-[#6A9955]"; // Comments
+useEffect(() => {
+  const formatCode = async () => {
+    try {
+      const result = await prettier.format(code, {
+        parser,
+        plugins: [babelPlugin, typescriptPlugin],
+        semi: true,
+        singleQuote: true,
+        trailingComma: 'all',
+        printWidth: 100,
+      });
+      setFormatted(result.trim());
+    } catch {
+      setFormatted(code);
     }
-    if (
-      line.includes("import") ||
-      line.includes("from") ||
-      line.includes("require")
-    ) {
-      return "text-[#C586C0]"; // Imports
-    }
-    if (
-      line.includes("function") ||
-      line.includes("def") ||
-      line.includes("class")
-    ) {
-      return "text-[#569CD6]"; // Keywords
-    }
-    if (
-      line.includes("const") ||
-      line.includes("let") ||
-      line.includes("var") ||
-      line.includes("final") ||
-      line.includes("static") ||
-      line.includes("public")
-    ) {
-      return "text-[#9CDCFE]"; // Variables
-    }
-    if (
-      line.includes("{") ||
-      line.includes("}") ||
-      line.includes("[") ||
-      line.includes("]") ||
-      line.includes("(") ||
-      line.includes(")")
-    ) {
-      return "text-[#D4D4D4]"; // Brackets
-    }
-    if (
-      line.includes("=") ||
-      line.includes("+") ||
-      line.includes("-") ||
-      line.includes("*") ||
-      line.includes("/") ||
-      line.includes("%")
-    ) {
-      return "text-[#D4D4D4]"; // Operators
-    }
-    if (line.includes('"') || line.includes("'") || line.includes("`")) {
-      return "text-[#CE9178]"; // Strings
-    }
-    if (!isNaN(Number(line.trim())) || line.trim().match(/0x[0-9A-Fa-f]+/)) {
-      return "text-[#B5CEA8]"; // Numbers
-    }
-    return "text-[#D4D4D4]"; // Default
+  };
+
+  formatCode();
+}, [code, parser]);
+
+  const monacoLanguage = languageId === 'typescript' ? 'typescript' : 'javascript';
+
+  const defineTheme = (monaco: any) => {
+    monaco.editor.defineTheme('v0-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: '', background: '0B0B0F' },
+        { token: 'keyword', foreground: 'C084FC' },
+        { token: 'number', foreground: '93C5FD' },
+        { token: 'string', foreground: '86EFAC' },
+        { token: 'type', foreground: 'FCA5A5' },
+      ],
+      colors: {
+        'editor.background': '#0B0B0F',
+        'editor.lineHighlightBackground': '#12121A',
+        'editorCursor.foreground': '#F472B6',
+        'editor.selectionBackground': '#6D28D933',
+        'editorLineNumber.foreground': '#49506B',
+        'editorGutter.background': '#0B0B0F',
+      },
+    });
   };
 
   return (
-    <div className="bg-[#1E1E1E] rounded-lg overflow-hidden font-mono text-sm h-full flex flex-col">
-      <div className="bg-[#252526] px-4 py-2 flex items-center justify-between border-b border-[#333333]">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-[#FF5F56]"></div>
-          <div className="w-3 h-3 rounded-full bg-[#FFBD2E]"></div>
-          <div className="w-3 h-3 rounded-full bg-[#27C93F]"></div>
-        </div>
-        <div className="text-[#CCCCCC] text-xs flex items-center gap-2">
-          <span>{language?.name}</span>
-          <span className="text-[#858585]">●</span>
-          <span className="text-[#858585]">{lines.length} lines</span>
-          <button
-            onClick={() => copyToClipboard(code)}
-            className="ml-2 p-1 hover:bg-[#404040] rounded"
-            title="Copy to clipboard"
-          >
-            <Copy className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
-      <div className="flex-1 overflow-auto p-4">
-        <div className="flex">
-          <div className="text-[#858585] w-8 select-none flex-shrink-0 pr-4 text-right">
-            {lines.map((_, i) => (
-              <div key={i} className="select-none">
-                {i + 1}
-              </div>
-            ))}
-          </div>
-          <div className="flex-1 min-w-0">
-            {lines.map((line, i) => (
-              <div key={i} className={`whitespace-pre ${getSyntaxClass(line)}`}>
-                {line}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    <Editor
+      value={formatted}
+      language={monacoLanguage}
+      theme="v0-dark"
+      beforeMount={defineTheme}
+      options={{
+        readOnly: true,
+        minimap: { enabled: false },
+        scrollBeyondLastLine: false,
+        fontSize: 13,
+        fontFamily:
+          'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+        lineHeight: 20,
+        wordWrap: 'on',
+        smoothScrolling: true,
+        automaticLayout: true,
+      }}
+      height="60vh"
+    />
   );
 }
