@@ -2,7 +2,7 @@ import GLBConverter from "./glb-convertor/page";
 
 export default function Home() {
   return (
-    <div className="h-[100vh] bg-gradient-to-br from-black via-gray-900 to-gray-800">
+    <div className="h-[100vh] bg-[#0B0B0F]">
       <GLBConverter/>
     </div>
   );
