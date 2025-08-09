@@ -16,6 +16,7 @@ import LanguageSelector from '@/components/language-selector';
 import FileTree from '@/components/file-tree';
 import ModelPreview from '@/components/model-preview';
 import generateProjectStructure from '@/lib/generator/generateProjectStructure';
+import ErrorToast from '@/components/errortoast';
 
 export default function GLBConverter() {
   const [file, setFile] = useState<File | null>(null);
@@ -343,10 +344,14 @@ export default function GLBConverter() {
           </nav>
         </div>
       </header>
+{error && (
+  <ErrorToast message={error}/>
+)}
+
 
       {/* Main */}
-      <main className="flex flex-col w-full px-4 py-6">
-        <div className="grid grid-cols-12 gap-4">
+<main className="flex flex-col flex-1 w-full px-4 py-6 h-[93%] ">
+        <div className="grid grid-cols-12 gap-4 h-full">
           {/* Sidebar */}
           <aside className="col-span-12 md:col-span-3 xl:col-span-2 flex flex-col rounded-lg border border-white/10 bg-white/[0.02]">
             <div className="px-3 py-3 border-b border-white/10">
@@ -410,25 +415,15 @@ export default function GLBConverter() {
               </div>
             </div>
           </aside>
-
+          
           {/* Content */}
           <section className="col-span-12 md:col-span-9 xl:col-span-10 h-full">
-            {/* Error */}
-            {error && (
-              <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2">
-                <div className="flex items-center text-red-300">
-                  <AlertCircle className="h-4 w-4 mr-2" />
-                  <span className="text-sm">{error}</span>
-                </div>
-              </div>
-            )}
-
             {/* Upload */}
             {activeTab === 'upload' && (
               <div className="w-full h-full flex flex-col">
                 <div className="rounded-xl border border-white/10 bg-white/[0.02] p-8 h-full flex flex-col">
                   <div
-                    className={`rounded-lg border-2 border-dashed p-12 text-center transition-colors flex flex-col h-[74vh] justify-center items-center ${
+                    className={`rounded-lg border-2 border-dashed p-12 text-center transition-colors flex flex-col justify-center items-center h-full ${
                       isDragging ? 'border-fuchsia-500 bg-fuchsia-500/10' : 'border-white/10 hover:border-fuchsia-500/50'
                     }`}
                     onDragOver={(e) => {
@@ -586,7 +581,7 @@ export default function GLBConverter() {
                   </p>
                 </div>
 
-                <div className="rounded-lg overflow-hidden border border-white/10" style={{ height: '520px' }}>
+                <div className="rounded-lg overflow-hidden border border-white/10" style={{ height: '62vh' }}>
                   <Canvas camera={{ position: [0, 0, 5], fov: 50 }} gl={{ powerPreference: 'high-performance', antialias: true, alpha: true }}>
                     <ambientLight intensity={0.5} />
                     <pointLight position={[10, 10, 10]} />
@@ -623,7 +618,7 @@ export default function GLBConverter() {
 
             {/* Code */}
             {activeTab === 'code' && projectStructure && (
-              <div className="flex h-full min-h-[70vh] flex-col rounded-xl border border-white/10 bg-white/[0.02] p-4">
+              <div className="flex h-full flex-col rounded-xl border border-white/10 bg-white/[0.02] p-4">
                 <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div className="flex items-center gap-3">
                     <h3 className="text-lg font-medium text-slate-200">
@@ -642,7 +637,7 @@ export default function GLBConverter() {
                     <LanguageSelector selectedLanguage={selectedLanguage} onChange={setSelectedLanguage} />
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <button
                       onClick={() => downloadZip(true)}
                       disabled={isProcessing}
