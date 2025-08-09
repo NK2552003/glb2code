@@ -20,7 +20,7 @@ export default function LanguageSelector({
       >
         {LANGUAGES.map((l) => (
           <option value={l.id} key={l.id}>
-            {l.title}
+            {l.name}
           </option>
         ))}
       </select>

@@ -1548,6 +1548,21 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }
 }}),
+"[project]/lib/functions/capitalize.ts [app-client] (ecmascript)": ((__turbopack_context__) => {
+"use strict";
+
+var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
+{
+__turbopack_context__.s({
+    "capitalize": ()=>capitalize
+});
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
+    __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
+}
+}}),
 "[project]/templates/example/typescript.ts [app-client] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
@@ -1556,7 +1571,10 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "TypescriptExample": ()=>TypescriptExample
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-client] (ecmascript)");
+;
 function TypescriptExample(componentName) {
+    componentName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(componentName);
     return "use 'client';\n   import React from 'react';\nimport { Canvas } from '@react-three/fiber';\nimport { OrbitControls, Environment } from '@react-three/drei';\nimport ".concat(componentName, " from '@/components/").concat(componentName, "';\n\n/**\n * Example page demonstrating how to use the ").concat(componentName, " component\n */\nexport default function ").concat(componentName, 'Page() {\n  return (\n    <div className="w-full h-screen">\n      <Canvas \n        camera={{ position: [0, 0, 5], fov: 50 }}\n        gl={{\n          powerPreference: "high-performance",\n          antialias: true,\n          alpha: true\n        }}\n      >\n        <ambientLight intensity={0.5} />\n        <pointLight position={[10, 10, 10]} />\n        <').concat(componentName, ' />\n        <OrbitControls \n          enableZoom\n          enablePan\n          enableRotate\n          minDistance={0.1}\n          maxDistance={100}\n        />\n        <Environment preset="studio" />\n      </Canvas>\n    </div>\n  );\n}\n');
 }
 _c = TypescriptExample;
@@ -2492,13 +2510,18 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "TypescriptIndex": ()=>TypescriptIndex
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-client] (ecmascript)");
+;
 function TypescriptIndex(meshes, materials, componentName) {
+    componentName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(componentName);
     {
-        const meshImports = meshes.map((mesh)=>"import ".concat(mesh.name, " from './meshes/").concat(mesh.name, "';")).join("\n");
-        const materialImports = materials.map((material)=>"import ".concat(material.name, " from './materials/").concat(material.name, "';")).join("\n");
+        const meshImports = meshes.map((mesh)=>"import ".concat((0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(mesh.name), " from './meshes/").concat(mesh.name, "';")).join("\n");
+        const materialImports = materials.map((material)=>"import ".concat((0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(material.name), " from './materials/").concat(material.name, "';")).join("\n");
         const meshElements = meshes.map((mesh, i)=>{
             const material = materials[i % materials.length];
-            return "      <".concat(mesh.name, " material={").concat(material.name, "()} />");
+            const meshName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(mesh.name);
+            const materialName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(material.name);
+            return "      <".concat(meshName, " material={").concat(materialName, "()} />");
         }).join("\n");
         return "import React, { useRef } from 'react';\nimport type { GroupProps } from '@react-three/fiber';\nimport * as THREE from 'three';\n".concat(meshImports, "\n").concat(materialImports, "\n\ninterface ").concat(componentName, "Props extends GroupProps {\n  [key: string]: any;\n}\n\n/**\n * ").concat(componentName, " component\n * Main component that assembles all mesh and material parts\n */\nexport default function ").concat(componentName, "(props: ").concat(componentName, "Props) {\n  const ref = useRef<THREE.Group>(null);\n  \n  return (\n    <group ref={ref} {...props}>\n").concat(meshElements, "\n    </group>\n  );\n}\n");
     }
@@ -2600,7 +2623,10 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "TypescriptMaterial": ()=>TypescriptMaterial
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-client] (ecmascript)");
+;
 function TypescriptMaterial(materialName, materialType, properties) {
+    materialName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(materialName);
     return "import * as THREE from 'three';\n\n/**\n * ".concat(materialName, " material component\n */\nexport default function ").concat(materialName, "(): THREE.Material {\n  return new THREE.").concat(materialType, "({\n    ").concat(properties.join(",\n    "), "\n  });\n}\n");
 }
 _c = TypescriptMaterial;
@@ -2804,21 +2830,6 @@ function CPPMaterial(materialName, properties) {
 _c = CPPMaterial;
 var _c;
 __turbopack_context__.k.register(_c, "CPPMaterial");
-if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
-    __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
-}
-}}),
-"[project]/lib/functions/capitalize.ts [app-client] (ecmascript)": ((__turbopack_context__) => {
-"use strict";
-
-var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
-{
-__turbopack_context__.s({
-    "capitalize": ()=>capitalize
-});
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(module, globalThis.$RefreshHelpers$);
 }
@@ -3337,8 +3348,12 @@ var { k: __turbopack_refresh__, m: module } = __turbopack_context__;
 __turbopack_context__.s({
     "TypescriptMesh": ()=>TypescriptMesh
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-client] (ecmascript)");
+;
 function TypescriptMesh(meshName) {
-    return "import React from 'react';\nimport { ".concat(meshName, "Geometry } from '../geometries/").concat(meshName, "Geometry';\n\ninterface ").concat(meshName, "Props {\n  [key: string]: any;\n}\n\n/**\n * ").concat(meshName, " component\n * Simple wrapper that uses pre-defined geometry\n * Easy to modify without touching geometry data\n */\nexport default function ").concat(meshName, "(props: ").concat(meshName, "Props) {\n  return <mesh geometry={").concat(meshName, "Geometry} {...props} />;\n}\n");
+    const meshName1 = meshName;
+    meshName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["capitalize"])(meshName);
+    return "import React from 'react';\nimport { ".concat(meshName1, "Geometry } from '../geometries/").concat(meshName1, "Geometry';\n\ninterface ").concat(meshName, "Props {\n  [key: string]: any;\n}\n\n/**\n * ").concat(meshName, " component\n * Simple wrapper that uses pre-defined geometry\n * Easy to modify without touching geometry data\n */\nexport default function ").concat(meshName, "(props: ").concat(meshName, "Props) {\n  return <mesh geometry={").concat(meshName1, "Geometry} {...props} />;\n}\n");
 }
 _c = TypescriptMesh;
 var _c;
@@ -5282,4 +5297,4 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 }}),
 }]);
 
-//# sourceMappingURL=_0737cfec._.js.map
+//# sourceMappingURL=_f191d1fd._.js.map

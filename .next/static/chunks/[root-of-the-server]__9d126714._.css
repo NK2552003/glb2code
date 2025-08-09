@@ -1270,26 +1270,6 @@
     }
   }
 
-  .bg-red-600\/20 {
-    background-color: rgba(228, 0, 20, .2);
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-red-600\/20 {
-      background-color: color-mix(in oklab, var(--color-red-600) 20%, transparent);
-    }
-  }
-
-  .bg-red-600\/90 {
-    background-color: rgba(228, 0, 20, .9);
-  }
-
-  @supports (color: color-mix(in lab, red, red)) {
-    .bg-red-600\/90 {
-      background-color: color-mix(in oklab, var(--color-red-600) 90%, transparent);
-    }
-  }
-
   .bg-red-900\/50 {
     background-color: rgba(130, 24, 26, .5);
   }

@@ -1,5 +1,9 @@
-export function TypescriptExample(componentName,){
-   return `import React from 'react';
+import { capitalize } from "@/lib/functions/capitalize";
+
+export function TypescriptExample(componentName){
+  componentName = capitalize(componentName);
+   return `use 'client';
+   import React from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import ${componentName} from '@/components/${componentName}';

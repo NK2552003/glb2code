@@ -2682,13 +2682,26 @@ function SwiftExample(componentName) {
     `;
 }
 }),
+"[project]/lib/functions/capitalize.ts [app-ssr] (ecmascript)": ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s({
+    "capitalize": ()=>capitalize
+});
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+}),
 "[project]/templates/example/typescript.ts [app-ssr] (ecmascript)": ((__turbopack_context__) => {
 "use strict";
 
 __turbopack_context__.s({
     "TypescriptExample": ()=>TypescriptExample
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-ssr] (ecmascript)");
+;
 function TypescriptExample(componentName) {
+    componentName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(componentName);
     return `use 'client';
    import React from 'react';
 import { Canvas } from '@react-three/fiber';
@@ -4499,13 +4512,18 @@ class ${componentName} {
 __turbopack_context__.s({
     "TypescriptIndex": ()=>TypescriptIndex
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-ssr] (ecmascript)");
+;
 function TypescriptIndex(meshes, materials, componentName) {
+    componentName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(componentName);
     {
-        const meshImports = meshes.map((mesh)=>`import ${mesh.name} from './meshes/${mesh.name}';`).join("\n");
-        const materialImports = materials.map((material)=>`import ${material.name} from './materials/${material.name}';`).join("\n");
+        const meshImports = meshes.map((mesh)=>`import ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(mesh.name)} from './meshes/${mesh.name}';`).join("\n");
+        const materialImports = materials.map((material)=>`import ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(material.name)} from './materials/${material.name}';`).join("\n");
         const meshElements = meshes.map((mesh, i)=>{
             const material = materials[i % materials.length];
-            return `      <${mesh.name} material={${material.name}()} />`;
+            const meshName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(mesh.name);
+            const materialName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(material.name);
+            return `      <${meshName} material={${materialName}()} />`;
         }).join("\n");
         return `import React, { useRef } from 'react';
 import type { GroupProps } from '@react-three/fiber';
@@ -4617,7 +4635,10 @@ function generateIndexComponent(componentName, meshes, materials, displayMode, l
 __turbopack_context__.s({
     "TypescriptMaterial": ()=>TypescriptMaterial
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-ssr] (ecmascript)");
+;
 function TypescriptMaterial(materialName, materialType, properties) {
+    materialName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(materialName);
     return `import * as THREE from 'three';
 
 /**
@@ -4907,16 +4928,6 @@ function CPPMaterial(materialName, properties) {
             }
         };
         `;
-}
-}),
-"[project]/lib/functions/capitalize.ts [app-ssr] (ecmascript)": ((__turbopack_context__) => {
-"use strict";
-
-__turbopack_context__.s({
-    "capitalize": ()=>capitalize
-});
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 }),
 "[project]/templates/material/go.ts [app-ssr] (ecmascript)": ((__turbopack_context__) => {
@@ -5619,9 +5630,13 @@ class ${meshName} {
 __turbopack_context__.s({
     "TypescriptMesh": ()=>TypescriptMesh
 });
+var __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/lib/functions/capitalize.ts [app-ssr] (ecmascript)");
+;
 function TypescriptMesh(meshName) {
+    const meshName1 = meshName;
+    meshName = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$functions$2f$capitalize$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["capitalize"])(meshName);
     return `import React from 'react';
-import { ${meshName}Geometry } from '../geometries/${meshName}Geometry';
+import { ${meshName1}Geometry } from '../geometries/${meshName1}Geometry';
 
 interface ${meshName}Props {
   [key: string]: any;
@@ -5633,7 +5648,7 @@ interface ${meshName}Props {
  * Easy to modify without touching geometry data
  */
 export default function ${meshName}(props: ${meshName}Props) {
-  return <mesh geometry={${meshName}Geometry} {...props} />;
+  return <mesh geometry={${meshName1}Geometry} {...props} />;
 }
 `;
 }
@@ -7530,4 +7545,4 @@ __turbopack_async_result__();
 
 };
 
-//# sourceMappingURL=%5Broot-of-the-server%5D__6fd4913a._.js.map
+//# sourceMappingURL=%5Broot-of-the-server%5D__bfeac823._.js.map
