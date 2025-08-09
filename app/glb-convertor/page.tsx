@@ -353,7 +353,7 @@ export default function GLBConverter() {
 <main className="flex flex-col flex-1 w-full px-4 py-6 h-[93%] ">
         <div className="grid grid-cols-12 gap-4 h-full">
           {/* Sidebar */}
-          <aside className="col-span-12 md:col-span-3 xl:col-span-2 flex flex-col rounded-lg border border-white/10 bg-white/[0.02]">
+          <aside className="col-span-12 md:col-span-3 xl:col-span-2 flex flex-col rounded-lg border border-white/10 bg-white/[0.02] h-full">
             <div className="px-3 py-3 border-b border-white/10">
               <h2 className="text-xs uppercase tracking-wider text-slate-400 flex items-center">
                 <FolderIcon className="h-4 w-4 mr-2 text-amber-400" />
@@ -374,18 +374,22 @@ export default function GLBConverter() {
                 />
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto p-4">
-                <div className="text-slate-400/80 text-sm space-y-3">
+              <div className="flex-1 overflow-y-auto p-4 items-center">
+                <div className="text-slate-400/80 text-sm space-y-3 text-center h-full">
                   {activeTab === 'upload' ? (
-                    <div className="space-y-2">
-                      <p>Upload a GLB file to get started.</p>
+                    <div className="space-y-2 flex flex-col item-center h-full relative">
+                       <p>Upload a GLB file to get started.</p>
+                      <div className='mt-10'>
                       <p>Supported file: .glb</p>
                       <p className="text-amber-300">
                         {'If you have a different 3D model format (like .obj, .fbx, .stl), please convert it to '}
                         <strong>.glb</strong>
                         {' before uploading.'}
                       </p>
-                      <UploadButton onClick={() => window.open('https://imagetostl.com/convert/file/obj/to/glb')} />
+                      </div>
+                      <div className='mt-3 md:absolute bottom-10'>
+                        <UploadButton onClick={() => window.open('https://imagetostl.com/convert/file/obj/to/glb')} />
+                      </div>
                     </div>
                   ) : activeTab === 'preview' ? (
                     <div className="space-y-2">
